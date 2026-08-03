@@ -3,6 +3,9 @@
 result
 result-*
 
+# Tool caches
+.rumdl_cache/
+
 # OS cruft
 .DS_Store
 
@@ -10,6 +13,5 @@ result-*
 .vscode/
 .idea/
 
-# Gradle
-/.gradle/
-/build/
+# Each app/lib should keep its own .gitignore for language-specific build output
+# (e.g. node_modules/, target/, out/, __pycache__/) — do not centralize those here.
