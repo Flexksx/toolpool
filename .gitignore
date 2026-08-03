@@ -1,0 +1,15 @@
+# Nix / direnv
+.direnv/
+result
+result-*
+
+# OS cruft
+.DS_Store
+
+# Editors
+.vscode/
+.idea/
+
+# Gradle
+/.gradle/
+/build/

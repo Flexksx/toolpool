@@ -1,0 +1,12 @@
+set working-directory := "../.."
+
+[private]
+default:
+    just --list --justfile {{source_file()}}
+
+# Lint Markdown files
+markdown:
+    rumdl check .
+
+# Run every linter
+all: markdown
