@@ -15,13 +15,16 @@ Every developer action goes through `just`.
 
 | Command | Does |
 | --- | --- |
-| `just format all` | Format Nix and Markdown sources |
-| `just lint all` | Lint Markdown |
-
-`just build` and `just test` are empty until the first unit lands.
+| `just build all` | Build every unit |
+| `just test all` | Run every test suite |
+| `just format all` | Format Nix, Markdown and Java sources |
+| `just lint all` | Check Markdown and Java formatting |
 
 ## Layout
 
+One Gradle multi-project build rooted at `settings.gradle`.
+
+- `libs/jopenapimcp/` — OpenAPI parsing and the meta-tool router
 - `nix/` — dev-shell modules
 - `.just/` — build/format/lint/test recipes
 
@@ -35,5 +38,5 @@ but that is going to bloat the context of the agent in a few turns.
 A different approach is that you use a dynamic tool router, that exposes your agent tools as "meta-tools".
 In that case, the MCP would have only a handful of actual tools for the agent - `tool_call`, `tool_search`, `read_tool`.
 
-Of course, it introduces a trade-off between latency, discovery and model context capabilities, 
+Of course, it introduces a trade-off between latency, discovery and model context capabilities,
 but is an interesting approach in the case where you have a ton of REST endpoints and want an MCP for your agents.

@@ -3,3 +3,10 @@ set working-directory := "../.."
 [private]
 default:
     just --list --justfile {{source_file()}}
+
+# Run the jopenapimcp test suite
+jopenapimcp:
+    ./gradlew :libs:jopenapimcp:test
+
+# Run every test suite
+all: jopenapimcp

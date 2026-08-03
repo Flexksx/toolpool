@@ -1,0 +1,3 @@
+rootProject.name = 'jopenapi-mcp'
+
+include 'libs:jopenapimcp'

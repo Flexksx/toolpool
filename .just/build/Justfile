@@ -3,3 +3,10 @@ set working-directory := "../.."
 [private]
 default:
     just --list --justfile {{source_file()}}
+
+# Build the jopenapimcp lib
+jopenapimcp:
+    ./gradlew :libs:jopenapimcp:build
+
+# Build every unit
+all: jopenapimcp

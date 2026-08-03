@@ -8,3 +8,7 @@ pre-commit:
       glob: "**/*.md"
       run: rumdl check --fix {staged_files}
       stage_fixed: true
+    format-java:
+      glob: "**/*.java"
+      run: google-java-format --replace {staged_files}
+      stage_fixed: true

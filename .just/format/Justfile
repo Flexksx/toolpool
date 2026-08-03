@@ -12,5 +12,9 @@ nix:
 markdown:
     rumdl check --fix .
 
+# Format Java sources
+java:
+    find libs -name '*.java' -not -path '*/build/*' -print0 | xargs -0 -r google-java-format --replace
+
 # Run every formatter
-all: nix markdown
+all: nix markdown java
