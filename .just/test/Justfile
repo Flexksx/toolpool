@@ -8,5 +8,9 @@ default:
 jopenapimcp:
     ./gradlew :libs:jopenapimcp:test
 
+# Run the sample-rest-api-client test suite
+sample-rest-api-client:
+    ./gradlew :libs:sample-rest-api-client:test
+
 # Run every test suite
-all: jopenapimcp
+all: jopenapimcp sample-rest-api-client

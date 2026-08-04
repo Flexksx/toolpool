@@ -1,3 +1,4 @@
 rootProject.name = 'jopenapi-mcp'
 
 include 'libs:jopenapimcp'
+include 'libs:sample-rest-api-client'

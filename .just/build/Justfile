@@ -8,5 +8,9 @@ default:
 jopenapimcp:
     ./gradlew :libs:jopenapimcp:build
 
+# Build the sample-rest-api-client lib
+sample-rest-api-client:
+    ./gradlew :libs:sample-rest-api-client:build
+
 # Build every unit
-all: jopenapimcp
+all: jopenapimcp sample-rest-api-client

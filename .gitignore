@@ -10,6 +10,8 @@ result-*
 /.gradle/
 /build/
 libs/*/build/
+libs/*/.gradle/
+*.iml
 
 # OS cruft
 .DS_Store
