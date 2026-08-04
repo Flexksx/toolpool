@@ -7,4 +7,6 @@ import io.swagger.v3.oas.models.OpenAPI;
 @Component
 public interface SpecRepository {
   OpenAPI getOpenApi();
+
+  void setSpecLocation(String specLocation);
 }

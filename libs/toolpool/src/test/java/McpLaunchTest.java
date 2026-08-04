@@ -1,5 +1,7 @@
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.time.Duration;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +18,7 @@ public class McpLaunchTest {
 
   @BeforeEach
   void setup() {
-    specRepository = new SwaggerSpecRepository(DEFAULT_DEMO_SPEC_RESOURCE);
+    specRepository = new SwaggerSpecRepository(DEFAULT_DEMO_SPEC_RESOURCE, Duration.ofMinutes(1));
     mcpGatewayMetatools = new McpGatewayMetatools(specRepository);
   }
 
