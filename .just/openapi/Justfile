@@ -1,0 +1,14 @@
+set working-directory := "../.."
+
+[private]
+default:
+    just --list --justfile {{source_file()}}
+
+# Generate the OpenAPI spec for sample-rest-api-client into ./openapi
+sample-rest-api-client:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    .just/openapi/generate.sh sample-rest-api-client 18080
+
+# Generate the OpenAPI spec for every webapp
+all: sample-rest-api-client

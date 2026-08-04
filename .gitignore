@@ -13,6 +13,9 @@ libs/*/build/
 libs/*/.gradle/
 *.iml
 
+# Generated OpenAPI specs
+/openapi/
+
 # OS cruft
 .DS_Store
 

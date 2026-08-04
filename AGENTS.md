@@ -26,6 +26,8 @@ current set.
 - `just test all` / `just test jopenapimcp`
 - `just format all` — Nix, Markdown, Java
 - `just lint all` — Markdown and Java format checks
+- `just openapi all` / `just openapi sample-rest-api-client` — boots the webapp, writes
+  its spec to `./openapi/<webapp-name>.openapi.{json,yaml}`, shuts it down
 
 Never invoke `gradle`, `alejandra`, `rumdl`, or `google-java-format` directly in docs
 or scripts. Add a recipe, so the pre-commit hooks and the task runner call the same
