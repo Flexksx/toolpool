@@ -12,5 +12,9 @@ jopenapimcp:
 sample-rest-api-client:
     ./gradlew :libs:sample-rest-api-client:test
 
+# Run the jopenapi-demo test suite
+jopenapi-demo:
+    ./gradlew :apps:jopenapi-demo:test
+
 # Run every test suite
-all: jopenapimcp sample-rest-api-client
+all: jopenapimcp sample-rest-api-client jopenapi-demo

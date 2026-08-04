@@ -5,12 +5,15 @@ result-*
 
 # Tool caches
 .rumdl_cache/
+.moon/cache/
 
 # Gradle
 /.gradle/
 /build/
 libs/*/build/
 libs/*/.gradle/
+apps/*/build/
+apps/*/.gradle/
 *.iml
 
 # Generated OpenAPI specs

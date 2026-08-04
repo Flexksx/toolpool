@@ -1,0 +1,12 @@
+set working-directory := "../.."
+
+[private]
+default:
+    just --list --justfile {{source_file()}}
+
+# Run the jopenapi-demo app, letting moon build libs:jopenapimcp first
+jopenapi-demo:
+    moon run jopenapi-demo:run
+
+# Run the default demo app
+all: jopenapi-demo

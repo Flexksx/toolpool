@@ -13,9 +13,8 @@ per-unit wrapper.
 - `libs/jopenapimcp/` — OpenAPI parsing and the meta-tool router. Library only:
   no `@SpringBootApplication`, no `bootJar`. It depends on `spring-boot-autoconfigure`
   so a consuming app can pick it up, and on `swagger-parser` to read specs.
-
-There is no deployable app yet. When one lands it goes in `apps/`, applies the
-`org.springframework.boot` plugin, and depends on `project(':libs:jopenapimcp')`.
+- `apps/jopenapi-demo/` — the deployable demo app. Applies the
+  `org.springframework.boot` plugin and depends on `project(':libs:jopenapimcp')`.
 
 ## Entry points
 
@@ -28,6 +27,8 @@ current set.
 - `just lint all` — Markdown and Java format checks
 - `just openapi all` / `just openapi sample-rest-api-client` — boots the webapp, writes
   its spec to `./openapi/<webapp-name>.openapi.{json,yaml}`, shuts it down
+- `just demo all` / `just demo jopenapi-demo` — runs `moon run jopenapi-demo:run`,
+  which builds `libs:jopenapimcp` first
 
 Never invoke `gradle`, `alejandra`, `rumdl`, or `google-java-format` directly in docs
 or scripts. Add a recipe, so the pre-commit hooks and the task runner call the same
@@ -36,8 +37,15 @@ command.
 ## Dev environment
 
 `direnv allow` (or `nix develop`) loads the pinned toolchain from `flake.nix` + `nix/`.
-Nix owns every tool version — there is no `.prototools`, and no `moon`: Gradle already
-resolves the dependency graph between subprojects.
+Nix owns every tool version — there is no `.prototools`.
+
+Gradle alone already resolves the dependency graph *inside* a single `./gradlew`
+invocation. `moon` sits on top of `just` for the cases where a task needs to span
+units through separate commands — e.g. `just demo` invokes `moon run jopenapi-demo:run`,
+and `apps/jopenapi-demo/moon.yml` declares `deps: ['^:build']` so moon builds
+`libs:jopenapimcp` (via `.moon/workspace.yml`'s `dependsOn`) before running the app.
+Register a project in `.moon/workspace.yml` only once another unit's moon task
+actually depends on it — don't pre-wire `.moon/` for units with no cross-unit edge.
 
 The Gradle wrapper is pinned to the same version `nix/java.nix` provides. Bump both
 together or Gradle downloads a second distribution.

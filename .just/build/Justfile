@@ -12,5 +12,9 @@ jopenapimcp:
 sample-rest-api-client:
     ./gradlew :libs:sample-rest-api-client:build
 
+# Build the jopenapi-demo app
+jopenapi-demo:
+    ./gradlew :apps:jopenapi-demo:build
+
 # Build every unit
-all: jopenapimcp sample-rest-api-client
+all: jopenapimcp sample-rest-api-client jopenapi-demo

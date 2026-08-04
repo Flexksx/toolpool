@@ -10,7 +10,7 @@ markdown:
 
 # Check Java formatting without rewriting
 java:
-    find libs -name '*.java' -not -path '*/build/*' -print0 | xargs -0 -r google-java-format --dry-run --set-exit-if-changed
+    find libs apps -name '*.java' -not -path '*/build/*' -print0 | xargs -0 -r google-java-format --dry-run --set-exit-if-changed
 
 # Run every linter
 all: markdown java
