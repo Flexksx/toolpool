@@ -6,7 +6,7 @@ default:
 
 # Run the jopenapimcp test suite
 jopenapimcp:
-    ./gradlew :libs:jopenapimcp:test
+    moon run jopenapimcp:test
 
 # Run the sample-rest-api-client test suite
 sample-rest-api-client:
@@ -14,7 +14,7 @@ sample-rest-api-client:
 
 # Run the jopenapi-demo test suite
 jopenapi-demo:
-    ./gradlew :apps:jopenapi-demo:test
+    moon run jopenapi-demo:test
 
 # Run every test suite
 all: jopenapimcp sample-rest-api-client jopenapi-demo

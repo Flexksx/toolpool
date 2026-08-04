@@ -6,7 +6,7 @@ default:
 
 # Build the jopenapimcp lib
 jopenapimcp:
-    ./gradlew :libs:jopenapimcp:build
+    moon run jopenapimcp:build
 
 # Build the sample-rest-api-client lib
 sample-rest-api-client:
@@ -14,7 +14,7 @@ sample-rest-api-client:
 
 # Build the jopenapi-demo app
 jopenapi-demo:
-    ./gradlew :apps:jopenapi-demo:build
+    moon run jopenapi-demo:build
 
 # Build every unit
 all: jopenapimcp sample-rest-api-client jopenapi-demo

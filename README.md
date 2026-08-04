@@ -24,9 +24,9 @@ Every developer action goes through `just`.
 
 One Gradle multi-project build rooted at `settings.gradle`.
 
-- `libs/jopenapimcp/` — OpenAPI parsing and the meta-tool router
-- `nix/` — dev-shell modules
-- `.just/` — build/format/lint/test recipes
+- `libs/jopenapimcp/`: OpenAPI parsing and the meta-tool router
+- `nix/`: dev-shell modules
+- `.just/`: build/format/lint/test recipes
 
 ## Idea
 
