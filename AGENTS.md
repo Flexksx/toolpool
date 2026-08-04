@@ -2,7 +2,7 @@
 
 ## Project map
 
-`jopenapi-mcp` reads OpenAPI specs produced by other services and re-exposes their
+`toolpool` reads OpenAPI specs produced by other services and re-exposes their
 operations as a handful of MCP meta-tools (`tool_search`, `read_tool`, `tool_call`)
 rather than one MCP tool per endpoint.
 
@@ -10,25 +10,25 @@ One Gradle multi-project build, rooted at `settings.gradle`. Every unit is a
 subproject included from there. There is no nested `settings.gradle` and no
 per-unit wrapper.
 
-- `libs/jopenapimcp/`: OpenAPI parsing and the meta-tool router. Library only:
+- `libs/toolpool/`: OpenAPI parsing and the meta-tool router. Library only:
   no `@SpringBootApplication`, no `bootJar`. It depends on `spring-boot-autoconfigure`
   so a consuming app can pick it up, and on `swagger-parser` to read specs.
-- `apps/jopenapi-demo/`: the deployable demo app. Applies the
-  `org.springframework.boot` plugin and depends on `project(':libs:jopenapimcp')`.
+- `apps/toolpool-demo/`: the deployable demo app. Applies the
+  `org.springframework.boot` plugin and depends on `project(':libs:toolpool')`.
 
 ## Entry points
 
 All developer actions go through `just`. Run `just --list --list-submodules` for the
 current set.
 
-- `just build all` / `just build jopenapimcp`
-- `just test all` / `just test jopenapimcp`
+- `just build all` / `just build toolpool`
+- `just test all` / `just test toolpool`
 - `just format all`: Nix, Markdown, Java
 - `just lint all`: Markdown and Java format checks
 - `just openapi all` / `just openapi sample-rest-api-client`: boots the webapp, writes
   its spec to `./openapi/<webapp-name>.openapi.{json,yaml}`, shuts it down
-- `just demo all` / `just demo jopenapi-demo`: runs `moon run jopenapi-demo:run`,
-  which builds `libs:jopenapimcp` first
+- `just demo all` / `just demo toolpool-demo`: runs `moon run toolpool-demo:run`,
+  which builds `libs:toolpool` first
 
 Never invoke `gradle`, `alejandra`, `rumdl`, or `google-java-format` directly in docs
 or scripts. Add a recipe, so the pre-commit hooks and the task runner call the same
@@ -39,12 +39,12 @@ command.
 `direnv allow` (or `nix develop`) loads the pinned toolchain from `flake.nix` + `nix/`.
 Nix owns every tool version. There is no `.prototools`.
 
-Every unit registered in `.moon/workspace.yml` (currently `jopenapimcp` and
-`jopenapi-demo`) routes *all* of its `just build`/`just test`/`just demo` recipes
+Every unit registered in `.moon/workspace.yml` (currently `toolpool` and
+`toolpool-demo`) routes *all* of its `just build`/`just test`/`just demo` recipes
 through `moon run <project>:<task>` rather than calling `./gradlew` directly, so
-there's one invocation path per unit, not two. `apps/jopenapi-demo/moon.yml`
+there's one invocation path per unit, not two. `apps/toolpool-demo/moon.yml`
 declares `deps: ['^:build']` on each task, which, combined with its `dependsOn:
-[jopenapimcp]`, makes moon build `libs:jopenapimcp` before any `jopenapi-demo`
+[toolpool]`, makes moon build `libs:toolpool` before any `toolpool-demo`
 task runs.
 
 `sample-rest-api-client` stays on `./gradlew` directly: it isn't registered in

@@ -47,7 +47,7 @@
       '';
 
       meta = {
-        description = "A monorepo build system and task runner, used here to resolve the apps/jopenapi-demo -> libs/jopenapimcp task graph";
+        description = "A monorepo build system and task runner, used here to resolve the apps/toolpool-demo -> libs/toolpool task graph";
         homepage = "https://github.com/moonrepo/moon";
         mainProgram = "moon";
         platforms = ["x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin"];

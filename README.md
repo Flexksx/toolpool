@@ -1,4 +1,4 @@
-# jopenapi-mcp
+# toolpool
 
 Expose OpenAPI specs generated from your endpoints as MCP meta-tools via a simple and minimalist gateway.
 
@@ -24,7 +24,7 @@ Every developer action goes through `just`.
 
 One Gradle multi-project build rooted at `settings.gradle`.
 
-- `libs/jopenapimcp/`: OpenAPI parsing and the meta-tool router
+- `libs/toolpool/`: OpenAPI parsing and the meta-tool router
 - `nix/`: dev-shell modules
 - `.just/`: build/format/lint/test recipes
 

@@ -1,0 +1,24 @@
+$schema: "https://moonrepo.dev/schemas/project.json"
+language: "unknown"
+layer: "application"
+dependsOn:
+  - toolpool
+tasks:
+  build:
+    command: "./gradlew"
+    args: [":apps:toolpool-demo:build"]
+    deps: ["^:build"]
+    options:
+      runFromWorkspaceRoot: true
+  test:
+    command: "./gradlew"
+    args: [":apps:toolpool-demo:test"]
+    deps: ["^:build"]
+    options:
+      runFromWorkspaceRoot: true
+  run:
+    command: "./gradlew"
+    args: [":apps:toolpool-demo:bootRun"]
+    deps: ["^:build"]
+    options:
+      runFromWorkspaceRoot: true

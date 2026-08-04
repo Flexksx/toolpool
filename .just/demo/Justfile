@@ -4,9 +4,9 @@ set working-directory := "../.."
 default:
     just --list --justfile {{source_file()}}
 
-# Run the jopenapi-demo app, letting moon build libs:jopenapimcp first
-jopenapi-demo:
-    moon run jopenapi-demo:run
+# Run the toolpool-demo app, letting moon build libs:toolpool first
+toolpool-demo:
+    moon run toolpool-demo:run
 
 # Run the default demo app
-all: jopenapi-demo
+all: toolpool-demo

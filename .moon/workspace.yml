@@ -3,5 +3,5 @@ vcs:
   client: git
   defaultBranch: main
 projects:
-  jopenapimcp: libs/jopenapimcp
-  jopenapi-demo: apps/jopenapi-demo
+  toolpool: libs/toolpool
+  toolpool-demo: apps/toolpool-demo

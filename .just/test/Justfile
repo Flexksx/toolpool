@@ -4,17 +4,17 @@ set working-directory := "../.."
 default:
     just --list --justfile {{source_file()}}
 
-# Run the jopenapimcp test suite
-jopenapimcp:
-    moon run jopenapimcp:test
+# Run the toolpool test suite
+toolpool:
+    moon run toolpool:test
 
 # Run the sample-rest-api-client test suite
 sample-rest-api-client:
     ./gradlew :libs:sample-rest-api-client:test
 
-# Run the jopenapi-demo test suite
-jopenapi-demo:
-    moon run jopenapi-demo:test
+# Run the toolpool-demo test suite
+toolpool-demo:
+    moon run toolpool-demo:test
 
 # Run every test suite
-all: jopenapimcp sample-rest-api-client jopenapi-demo
+all: toolpool sample-rest-api-client toolpool-demo

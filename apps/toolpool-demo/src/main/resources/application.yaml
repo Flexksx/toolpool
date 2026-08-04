@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: toolpool-demo
+  ai:
+    mcp:
+      server:
+        enabled: true
+        version: 1.0.0
+

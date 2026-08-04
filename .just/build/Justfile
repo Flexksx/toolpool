@@ -4,17 +4,17 @@ set working-directory := "../.."
 default:
     just --list --justfile {{source_file()}}
 
-# Build the jopenapimcp lib
-jopenapimcp:
-    moon run jopenapimcp:build
+# Build the toolpool lib
+toolpool:
+    moon run toolpool:build
 
 # Build the sample-rest-api-client lib
 sample-rest-api-client:
     ./gradlew :libs:sample-rest-api-client:build
 
-# Build the jopenapi-demo app
-jopenapi-demo:
-    moon run jopenapi-demo:build
+# Build the toolpool-demo app
+toolpool-demo:
+    moon run toolpool-demo:build
 
 # Build every unit
-all: jopenapimcp sample-rest-api-client jopenapi-demo
+all: toolpool sample-rest-api-client toolpool-demo

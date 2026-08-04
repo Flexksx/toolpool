@@ -1,9 +1,0 @@
-spring:
-  application:
-    name: jopenapi-demo
-  ai:
-    mcp:
-      server:
-        enabled: true
-        version: 1.0.0
-

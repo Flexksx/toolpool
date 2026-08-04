@@ -1,5 +1,5 @@
-rootProject.name = 'jopenapi-mcp'
+rootProject.name = 'toolpool'
 
-include 'libs:jopenapimcp'
+include 'libs:toolpool'
 include 'libs:sample-rest-api-client'
-include 'apps:jopenapi-demo'
+include 'apps:toolpool-demo'
