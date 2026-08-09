@@ -1,11 +1,11 @@
 package io.github.flexksx.tools;
 
-import java.util.Map;
+import com.github.fge.jsonschema.main.JsonSchema;
 
 
 public record AgentTool(
 	String name,
 	String description,
-	Map<String, Object> inputSchema,
-	Map<String, Object> outputSchema) {
+	JsonSchema inputSchema,
+	JsonSchema outputSchema) {
 }
