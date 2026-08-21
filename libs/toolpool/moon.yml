@@ -13,3 +13,13 @@ tasks:
     options:
       runFromWorkspaceRoot: true
       runInCI: true
+  lint:
+    script: "find libs/toolpool/src -name '*.java' -print0 | xargs -0 -r google-java-format --dry-run --set-exit-if-changed && ./gradlew :libs:toolpool:checkstyleMain :libs:toolpool:checkstyleTest"
+    options:
+      runFromWorkspaceRoot: true
+      runInCI: true
+  format:
+    script: "find libs/toolpool/src -name '*.java' -print0 | xargs -0 -r google-java-format --replace"
+    options:
+      runFromWorkspaceRoot: true
+      runInCI: false

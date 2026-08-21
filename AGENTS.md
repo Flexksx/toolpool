@@ -103,6 +103,12 @@ together or Gradle downloads a second distribution.
   and hangs until the timeout. `apps/toolpool-demo/moon.yml` sets the value on
   its `run` task for that reason. The value does not block
   `moon run toolpool-demo:run`, so `just demo` still works.
+- `libs/toolpool` has a `lint` and a `format` moon task. `lint` checks
+  `google-java-format` output, then runs `checkstyleMain` and `checkstyleTest`.
+  `format` rewrites the sources, so it declares `runInCI: false` and `moon ci`
+  skips it. Checkstyle holds one rule, `DeclarationOrder`, in
+  `libs/toolpool/config/checkstyle/checkstyle.xml`. Keep layout rules out of that
+  file, because `google-java-format` owns layout.
 - Java formatting is `google-java-format` from the dev shell, not a Gradle plugin:
   Gradle builds and tests, nothing else. Run `just format java`.
 - Nothing formats `*.gradle`. Hand-format those.

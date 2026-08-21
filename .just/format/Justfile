@@ -16,5 +16,9 @@ markdown:
 java:
     find libs apps -name '*.java' -not -path '*/build/*' -print0 | xargs -0 -r google-java-format --replace
 
+# Format the Java sources of the toolpool lib
+toolpool:
+    moon run toolpool:format
+
 # Run every formatter
 all: nix markdown java
