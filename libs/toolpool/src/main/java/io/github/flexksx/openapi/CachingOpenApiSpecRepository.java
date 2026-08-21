@@ -3,8 +3,10 @@ package io.github.flexksx.openapi;
 import io.swagger.v3.oas.models.OpenAPI;
 import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class CachingOpenApiSpecRepository implements OpenApiSpecRepository {
@@ -25,32 +27,23 @@ public class CachingOpenApiSpecRepository implements OpenApiSpecRepository {
   public OpenAPI get(String specLocation) throws OpenApiSpecReadException {
     try {
       return cacheBySpecLocation.compute(specLocation, this::refreshIfExpired).openAPI();
-    } catch (UncheckedSpecReadFailure carriedFailure) {
-      throw carriedFailure.readFailure;
+    } catch (CompletionException carriedFailure) {
+      throw (OpenApiSpecReadException) carriedFailure.getCause();
     }
   }
 
   private CachedOpenApiSpec refreshIfExpired(String specLocation, CachedOpenApiSpec cached) {
-    if (cached != null && !cached.isExpired(refreshInterval, clock.instant())) {
+    Instant now = clock.instant();
+    if (cached != null && !cached.isExpired(refreshInterval, now)) {
       return cached;
     }
     try {
-      return new CachedOpenApiSpec(specReader.read(specLocation), clock.instant());
+      return new CachedOpenApiSpec(specReader.read(specLocation), now);
     } catch (OpenApiSpecReadException readFailure) {
       if (cached == null) {
-        throw new UncheckedSpecReadFailure(readFailure);
+        throw new CompletionException(readFailure);
       }
       return cached;
-    }
-  }
-
-  private static final class UncheckedSpecReadFailure extends RuntimeException {
-
-    private final transient OpenApiSpecReadException readFailure;
-
-    private UncheckedSpecReadFailure(OpenApiSpecReadException readFailure) {
-      super(readFailure);
-      this.readFailure = readFailure;
     }
   }
 }

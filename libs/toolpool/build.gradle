@@ -22,7 +22,7 @@ dependencies {
     implementation 'org.springframework.ai:spring-ai-starter-mcp-server:2.0.0'
     implementation 'org.springframework.ai:spring-ai-starter-mcp-server-webmvc:2.0.0'
 
-    api 'io.swagger.parser.v3:swagger-parser:2.1.46'
+    implementation 'io.swagger.parser.v3:swagger-parser:2.1.46'
 
     testImplementation platform('org.junit:junit-bom:6.0.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
