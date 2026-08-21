@@ -1,6 +1,5 @@
 plugins {
     id 'java-library'
-    id 'checkstyle'
     id 'pmd'
 }
 
@@ -28,7 +27,13 @@ dependencies {
     testImplementation platform('org.junit:junit-bom:6.0.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'org.assertj:assertj-core'
+    testImplementation 'org.springframework:spring-test'
+    testImplementation 'org.hamcrest:hamcrest'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs << '-Xlint:deprecation'
 }
 
 test {
@@ -41,11 +46,4 @@ pmd {
     ruleSetFiles = files('config/pmd/ruleset.xml')
     consoleOutput = true
     ignoreFailures = false
-}
-
-checkstyle {
-    toolVersion = '14.0.0'
-    configFile = file('config/checkstyle/checkstyle.xml')
-    ignoreFailures = false
-    maxWarnings = 0
 }

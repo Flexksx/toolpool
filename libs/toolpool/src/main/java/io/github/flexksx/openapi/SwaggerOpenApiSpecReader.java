@@ -2,8 +2,12 @@ package io.github.flexksx.openapi;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.OpenAPIV3Parser;
+import io.swagger.v3.parser.core.models.ParseOptions;
+import io.swagger.v3.parser.core.models.SwaggerParseResult;
 
 public class SwaggerOpenApiSpecReader implements OpenApiSpecReader {
+
+  private static final ParseOptions PARSE_OPTIONS = fullyResolvingParseOptions();
 
   private final OpenAPIV3Parser parser = new OpenAPIV3Parser();
 
@@ -11,17 +15,24 @@ public class SwaggerOpenApiSpecReader implements OpenApiSpecReader {
   public OpenAPI read(String specLocation) throws OpenApiSpecReadException {
     validateSpecLocation(specLocation);
 
-    OpenAPI spec;
+    SwaggerParseResult result;
     try {
-      spec = parser.read(specLocation);
+      result = parser.readLocation(specLocation, null, PARSE_OPTIONS);
     } catch (RuntimeException readFailure) {
       throw new OpenApiSpecReadException(specLocation, readFailure);
     }
 
-    if (spec == null) {
+    if (result == null || result.getOpenAPI() == null) {
       throw new OpenApiSpecReadException(specLocation);
     }
-    return spec;
+    return result.getOpenAPI();
+  }
+
+  private static ParseOptions fullyResolvingParseOptions() {
+    ParseOptions parseOptions = new ParseOptions();
+    parseOptions.setResolve(true);
+    parseOptions.setResolveFully(true);
+    return parseOptions;
   }
 
   private static void validateSpecLocation(String specLocation) {

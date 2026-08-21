@@ -11,4 +11,5 @@ toolpool:
   # metatools = tool_search/read_tool/tool_call gateway; direct = one MCP tool per operation
   mode: metatools
   spec-location: ./openapi/sample-rest-api-client.openapi.json
+  base-url: http://localhost:18080
   refresh-interval: 5m

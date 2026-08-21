@@ -3,9 +3,11 @@ package io.github.flexksx;
 import io.github.flexksx.mcp.McpDirectTools;
 import io.github.flexksx.mcp.McpGatewayMetatools;
 import io.github.flexksx.openapi.CachingOpenApiSpecRepository;
+import io.github.flexksx.openapi.OpenApiSpecReadException;
 import io.github.flexksx.openapi.OpenApiSpecReader;
 import io.github.flexksx.openapi.OpenApiSpecRepository;
 import io.github.flexksx.openapi.SwaggerOpenApiSpecReader;
+import io.github.flexksx.tools.RouteCaller;
 import io.modelcontextprotocol.server.McpServerFeatures.SyncToolSpecification;
 import java.time.Clock;
 import java.time.Duration;
@@ -15,6 +17,7 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestClient;
 
 @AutoConfiguration
 public class ToolpoolAutoConfiguration {
@@ -38,22 +41,33 @@ public class ToolpoolAutoConfiguration {
   }
 
   @Bean
+  @ConditionalOnMissingBean
+  RouteCaller routeCaller(@Value("${toolpool.base-url}") String baseUrl) {
+    return new RouteCaller(RestClient.builder().baseUrl(baseUrl).build());
+  }
+
+  @Bean
   @ConditionalOnProperty(name = MODE_PROPERTY, havingValue = MODE_METATOOLS, matchIfMissing = true)
   McpGatewayMetatools mcpGatewayMetatools(
       OpenApiSpecRepository specRepository,
-      @Value("${toolpool.spec-location}") String specLocation) {
-    return new McpGatewayMetatools(specRepository, specLocation);
+      @Value("${toolpool.spec-location}") String specLocation,
+      RouteCaller routeCaller) {
+    return new McpGatewayMetatools(specRepository, specLocation, routeCaller);
   }
 
   @Bean
   @ConditionalOnProperty(name = MODE_PROPERTY, havingValue = MODE_DIRECT)
-  McpDirectTools mcpDirectTools() {
-    return new McpDirectTools();
+  McpDirectTools mcpDirectTools(
+      OpenApiSpecRepository specRepository,
+      @Value("${toolpool.spec-location}") String specLocation,
+      RouteCaller routeCaller) {
+    return new McpDirectTools(specRepository, specLocation, routeCaller);
   }
 
   @Bean
   @ConditionalOnProperty(name = MODE_PROPERTY, havingValue = MODE_DIRECT)
-  List<SyncToolSpecification> directToolSpecifications(McpDirectTools directTools) {
+  List<SyncToolSpecification> directToolSpecifications(McpDirectTools directTools)
+      throws OpenApiSpecReadException {
     return directTools.toolSpecifications();
   }
 }

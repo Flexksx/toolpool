@@ -3,51 +3,36 @@ info:
   title: YAML
   version: v0
 servers:
-  - url: http://localhost:18080
-    description: Generated server url
+- url: http://localhost:18080
+  description: Generated server url
 tags:
-  - name: User
-    description: User management REST endpoints.
+- name: User
+  description: User management REST endpoints.
 paths:
-  /{id}:
-    put:
-      tags:
-        - User
-      summary: Update a user
-      description: Updates an existing user's data
-      operationId: updateUser
-      parameters:
-        - name: request
-          in: query
-          required: true
-          schema:
-            $ref: "#/components/schemas/UpdateUserRestRequest"
-      responses:
-        "404":
-          description: User not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/UserRestResponse"
-  /:
+  /users/{id}:
     get:
       tags:
-        - User
+      - User
       summary: Get a user by ID
       description: Retrieves the user's data based on the user id
       operationId: getUser
       parameters:
-        - name: id
-          in: query
-          required: true
-          schema:
-            type: string
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: verbose
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+      - name: X-Request-Id
+        in: header
+        required: false
+        schema:
+          type: string
       responses:
         "404":
           description: User not found
@@ -61,18 +46,50 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/UserRestResponse"
+    put:
+      tags:
+      - User
+      summary: Update a user
+      description: Updates an existing user's data
+      operationId: updateUser
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserRestRequest"
+        required: true
+      responses:
+        "404":
+          description: User not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserRestResponse"
+  /users:
     post:
       tags:
-        - User
+      - User
       summary: Create a user
       description: Creates a new user from the given request payload
       operationId: createUser
-      parameters:
-        - name: request
-          in: query
-          required: true
-          schema:
-            $ref: "#/components/schemas/CreateUserRestRequest"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUserRestRequest"
+        required: true
       responses:
         "404":
           description: User not found
@@ -106,7 +123,7 @@ components:
           format: uri
         properties:
           type: object
-          additionalProperties: { }
+          additionalProperties: {}
     UpdateUserRestRequest:
       type: object
       properties:
