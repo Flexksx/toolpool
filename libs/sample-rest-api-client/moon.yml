@@ -1,0 +1,14 @@
+$schema: "https://moonrepo.dev/schemas/project.json"
+language: "unknown"
+layer: "library"
+tasks:
+  build:
+    command: "./gradlew"
+    args: [":libs:sample-rest-api-client:build"]
+    options:
+      runFromWorkspaceRoot: true
+  test:
+    command: "./gradlew"
+    args: [":libs:sample-rest-api-client:test"]
+    options:
+      runFromWorkspaceRoot: true

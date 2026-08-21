@@ -4,4 +4,5 @@ vcs:
   defaultBranch: main
 projects:
   toolpool: libs/toolpool
+  sample-rest-api-client: libs/sample-rest-api-client
   toolpool-demo: apps/toolpool-demo

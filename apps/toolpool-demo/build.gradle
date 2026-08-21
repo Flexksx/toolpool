@@ -26,7 +26,9 @@ dependencies {
     implementation project(':libs:toolpool')
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
     implementation 'org.springframework.ai:spring-ai-starter-mcp-server-webmvc'
+    testImplementation project(':libs:sample-rest-api-client')
     testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+    testImplementation 'org.assertj:assertj-core'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
@@ -34,6 +36,10 @@ dependencyManagement {
     imports {
         mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
     }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs << '-Xlint:deprecation'
 }
 
 tasks.named('test') {

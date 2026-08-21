@@ -1,11 +1,6 @@
 spring:
   application:
     name: toolpool-demo
-  ai:
-    mcp:
-      server:
-        enabled: true
-        version: 1.0.0
 
 toolpool:
   # metatools = tool_search/read_tool/tool_call gateway; direct = one MCP tool per operation

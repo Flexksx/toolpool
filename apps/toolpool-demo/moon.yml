@@ -3,6 +3,7 @@ language: "unknown"
 layer: "application"
 dependsOn:
   - toolpool
+  - sample-rest-api-client
 tasks:
   build:
     command: "./gradlew"

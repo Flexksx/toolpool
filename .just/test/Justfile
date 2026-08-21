@@ -10,7 +10,7 @@ toolpool:
 
 # Run the sample-rest-api-client test suite
 sample-rest-api-client:
-    ./gradlew :libs:sample-rest-api-client:test
+    moon run sample-rest-api-client:test
 
 # Run the toolpool-demo test suite
 toolpool-demo:

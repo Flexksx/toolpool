@@ -8,5 +8,9 @@ default:
 toolpool-demo:
     moon run toolpool-demo:run
 
+# Run toolpool-demo with sample-rest-api-client behind it on port 18080
+stack:
+    .just/demo/stack.sh
+
 # Run the default demo app
 all: toolpool-demo

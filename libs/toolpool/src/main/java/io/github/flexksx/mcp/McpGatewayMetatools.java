@@ -31,7 +31,10 @@ public class McpGatewayMetatools {
       name = "tool_search",
       description = "Search the callable tools by name, summary, description or tag")
   public List<ToolSummary> toolSearch(
-      @McpToolParam(description = "Text to match. Leave empty to list every tool.") String query)
+      @McpToolParam(
+              description = "Text to match. Leave empty to list every tool.",
+              required = false)
+          String query)
       throws OpenApiSpecReadException {
     return routeTable().search(query).stream().map(ToolSummary::of).toList();
   }
