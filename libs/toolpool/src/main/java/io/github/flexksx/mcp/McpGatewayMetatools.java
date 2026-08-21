@@ -1,23 +1,24 @@
 package io.github.flexksx.mcp;
 
-import java.util.List;
+import io.github.flexksx.openapi.OpenApiSpecReadException;
+import io.github.flexksx.openapi.OpenApiSpecRepository;
 import java.util.Map;
-
 import org.springframework.ai.mcp.annotation.McpTool;
 import org.springframework.ai.mcp.annotation.McpToolParam;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import io.github.flexksx.openapi.SpecRepository;
-import io.swagger.v3.oas.models.Operation;
-import io.swagger.v3.oas.models.PathItem;
 
 @Component
 public class McpGatewayMetatools {
 
-  private final SpecRepository specRepository;
+  private final OpenApiSpecRepository specRepository;
+  private final String specLocation;
 
-  public McpGatewayMetatools(SpecRepository specRepository) {
+  public McpGatewayMetatools(
+      OpenApiSpecRepository specRepository,
+      @Value("${toolpool.spec-location}") String specLocation) {
     this.specRepository = specRepository;
+    this.specLocation = specLocation;
   }
 
   @McpTool(name = "call_tool", description = "Call a tool by name, passing input parameters")
@@ -30,8 +31,9 @@ public class McpGatewayMetatools {
 
   @McpTool(name = "read_tool", description = "Read the spec of a callable tool")
   public Object readTool(
-      @McpToolParam(description = "The name of the tool to read.") String toolName) {
-    return specRepository.getOpenApi().getPaths().values().stream()
+      @McpToolParam(description = "The name of the tool to read.") String toolName)
+      throws OpenApiSpecReadException {
+    return specRepository.get(specLocation).getPaths().values().stream()
         .flatMap(pathItem -> pathItem.readOperations().stream())
         .filter(operation -> toolName.equals(operation.getOperationId()))
         .findFirst()

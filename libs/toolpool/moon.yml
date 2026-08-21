@@ -9,6 +9,7 @@ tasks:
       runFromWorkspaceRoot: true
   test:
     command: "./gradlew"
-    args: [":libs:toolpool:test"]
+    args: [":libs:toolpool:test", ":libs:toolpool:pmdMain", ":libs:toolpool:pmdTest"]
     options:
       runFromWorkspaceRoot: true
+      runInCI: true

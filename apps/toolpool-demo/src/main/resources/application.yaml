@@ -7,3 +7,6 @@ spring:
         enabled: true
         version: 1.0.0
 
+toolpool:
+  spec-location: ./openapi/sample-rest-api-client.openapi.json
+  refresh-interval: 5m
