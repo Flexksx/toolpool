@@ -1,0 +1,9 @@
+$schema: "https://moonrepo.dev/schemas/tasks.json"
+
+# Root build files live outside every project directory, so no project's default
+# `**/*` inputs include them. Without these entries a change to settings.gradle or
+# the Gradle wrapper marks zero projects as affected and `moon ci` runs nothing.
+implicitInputs:
+  - "/settings.gradle"
+  - "/gradlew"
+  - "/gradle/wrapper/**/*"

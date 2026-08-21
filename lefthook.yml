@@ -1,14 +1,21 @@
 pre-commit:
   commands:
     format-nix:
+      priority: 1
       glob: "**/*.nix"
       run: alejandra {staged_files}
       stage_fixed: true
     lint-markdown:
+      priority: 2
       glob: "**/*.md"
       run: rumdl check --fix {staged_files}
       stage_fixed: true
     format-java:
+      priority: 3
       glob: "**/*.java"
       run: google-java-format --replace {staged_files}
       stage_fixed: true
+    # Last, so it tests the formatted and restaged content.
+    ci:
+      priority: 4
+      run: just ci staged

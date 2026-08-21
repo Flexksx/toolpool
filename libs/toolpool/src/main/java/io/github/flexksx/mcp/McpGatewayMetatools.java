@@ -5,18 +5,13 @@ import io.github.flexksx.openapi.OpenApiSpecRepository;
 import java.util.Map;
 import org.springframework.ai.mcp.annotation.McpTool;
 import org.springframework.ai.mcp.annotation.McpToolParam;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
-@Component
 public class McpGatewayMetatools {
 
   private final OpenApiSpecRepository specRepository;
   private final String specLocation;
 
-  public McpGatewayMetatools(
-      OpenApiSpecRepository specRepository,
-      @Value("${toolpool.spec-location}") String specLocation) {
+  public McpGatewayMetatools(OpenApiSpecRepository specRepository, String specLocation) {
     this.specRepository = specRepository;
     this.specLocation = specLocation;
   }

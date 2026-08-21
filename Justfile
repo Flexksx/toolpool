@@ -1,4 +1,5 @@
 mod build '.just/build'
+mod ci '.just/ci'
 mod demo '.just/demo'
 mod format '.just/format'
 mod lint '.just/lint'

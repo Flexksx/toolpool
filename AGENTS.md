@@ -3,8 +3,11 @@
 ## Project map
 
 `toolpool` reads OpenAPI specs produced by other services and re-exposes their
-operations as a handful of MCP meta-tools (`tool_search`, `read_tool`, `tool_call`)
-rather than one MCP tool per endpoint.
+operations as MCP tools. The `toolpool.mode` property selects how it exposes them:
+
+- `metatools` (default): a handful of MCP meta-tools (`tool_search`, `read_tool`,
+  `tool_call`) instead of one MCP tool per endpoint.
+- `direct`: one MCP tool per OpenAPI operation.
 
 One Gradle multi-project build, rooted at `settings.gradle`. Every unit is a
 subproject included from there. There is no nested `settings.gradle` and no

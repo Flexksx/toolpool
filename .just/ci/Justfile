@@ -1,0 +1,13 @@
+set working-directory := "../.."
+
+[private]
+default:
+    just --list --justfile {{source_file()}}
+
+# Run the affected build and test tasks, dependents included
+all:
+    moon ci -g
+
+# Run the affected tasks for the staged files only
+staged:
+    git diff --cached --name-only --diff-filter=ACMR | moon ci --stdin -g
