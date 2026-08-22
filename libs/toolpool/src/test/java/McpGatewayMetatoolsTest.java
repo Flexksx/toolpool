@@ -49,8 +49,9 @@ public class McpGatewayMetatoolsTest {
   }
 
   @Test
-  void toolSearchByTag_keepsOnlyTheMatchingTools() throws Exception {
-    assertThat(metatools.toolSearch("payments")).isEmpty();
-    assertThat(metatools.toolSearch("user")).hasSize(3);
+  void toolSearchFiltersByNameSummaryAndDescription() throws Exception {
+    assertThat(metatools.toolSearch("create"))
+        .extracting(ToolSummary::name)
+        .containsExactly("createUser");
   }
 }

@@ -1,6 +1,7 @@
 package io.github.flexksx.tools;
 
 import io.modelcontextprotocol.spec.McpSchema.CallToolResult;
+import io.swagger.v3.oas.models.parameters.RequestBody;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -26,6 +27,14 @@ public class RouteCaller {
 
   public CallToolResult call(HttpRoute route, Map<String, Object> arguments) {
     BoundArguments bound = bind(route, arguments);
+
+    if (bound.body() == null) {
+      RequestBody requestBody = route.operation().getRequestBody();
+      if (requestBody != null && Boolean.TRUE.equals(requestBody.getRequired())) {
+        throw new IllegalArgumentException(
+            "Missing required body parameter for tool " + route.toolName());
+      }
+    }
 
     RestClient.RequestBodySpec request =
         restClient

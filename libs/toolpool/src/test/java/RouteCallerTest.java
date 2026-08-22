@@ -75,6 +75,7 @@ public class RouteCallerTest {
 
     apiServer.verify();
     assertThat(result.isError()).isFalse();
+    assertThat(textOf(result)).isEqualTo(USER_JSON);
   }
 
   @Test
@@ -97,6 +98,15 @@ public class RouteCallerTest {
     assertThatThrownBy(() -> routeCaller.call(route, Map.of("verbose", true)))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContainingAll("path", "id", "getUser");
+  }
+
+  @Test
+  void callARouteWithoutARequiredBody_throwsIllegalArgument() throws Exception {
+    HttpRoute route = routeTable.route("updateUser");
+
+    assertThatThrownBy(() -> routeCaller.call(route, Map.of("id", "u1")))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContainingAll("body", "updateUser");
   }
 
   private static Map<String, Object> orderedUserBody() {
