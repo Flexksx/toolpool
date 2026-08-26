@@ -4,11 +4,12 @@ layer: "library"
 tasks:
   build:
     command: "./gradlew"
-    args: [":libs:sample-rest-api-client:build"]
+    args: [":libs:sample-rest-api-client:assemble"]
     options:
       runFromWorkspaceRoot: true
   test:
     command: "./gradlew"
     args: [":libs:sample-rest-api-client:test"]
+    deps: ["~:build"]
     options:
       runFromWorkspaceRoot: true

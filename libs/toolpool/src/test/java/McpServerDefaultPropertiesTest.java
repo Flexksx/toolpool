@@ -1,6 +1,6 @@
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.github.flexksx.mcp.McpServerDefaultProperties;
+import io.github.flexksx.adapter.mcp.McpServerDefaultProperties;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.env.MapPropertySource;

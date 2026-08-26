@@ -59,10 +59,7 @@ class McpMetatoolsServerIntegrationTest {
   void readTool_describesTheParametersOfTheOperation() {
     CallToolResult result = call(mcpClient, "read_tool", Map.of("toolName", "getUser"));
 
-    assertThat(textOf(result))
-        .contains("\"operationId\" : \"getUser\"")
-        .contains("X-Request-Id")
-        .doesNotContain("$ref");
+    assertThat(textOf(result)).contains("getUser").contains("X-Request-Id").contains("inputSchema");
   }
 
   @Test

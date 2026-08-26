@@ -4,12 +4,13 @@ layer: "library"
 tasks:
   build:
     command: "./gradlew"
-    args: [":libs:toolpool:build"]
+    args: [":libs:toolpool:assemble"]
     options:
       runFromWorkspaceRoot: true
   test:
     command: "./gradlew"
     args: [":libs:toolpool:test", ":libs:toolpool:pmdMain", ":libs:toolpool:pmdTest"]
+    deps: ["~:build"]
     options:
       runFromWorkspaceRoot: true
       runInCI: true

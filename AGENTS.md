@@ -19,6 +19,54 @@ per-unit wrapper.
 - `apps/toolpool-demo/`: the deployable demo app. Applies the
   `org.springframework.boot` plugin and depends on `project(':libs:toolpool')`.
 
+## Architecture
+
+`libs/toolpool` uses an onion architecture. Each ring is a package under
+`io.github.flexksx`. A ring must depend inward only.
+
+- `domain`: the model and every translation rule. It depends on the JDK only.
+  Sub-packages group the model by concept: `domain.tool` holds the `Tool`
+  aggregate and `ToolCatalog`, `domain.http` holds `HttpTarget` and
+  `ParameterLocation`, and `domain.schema` holds `JsonSchema`. The shared
+  concepts (`domain.http` and `domain.schema`) must not depend on `domain.tool`.
+- `application`: the `Toolpool` service and its two outbound ports,
+  `ToolCatalogProvider` and `ToolCallExecutor`. It depends on `domain` only.
+- `adapter.openapi`: the anti-corruption layer.
+  `OpenApiToolCatalogTranslator` maps one `OpenAPI` object to one `ToolCatalog`, and
+  `OpenApiToolCatalogProvider` reads the spec and holds that catalog. This is the
+  only package that can import `io.swagger`.
+- `adapter.http`: `RestClientToolCallExecutor` sends one bound `ToolCall`.
+- `adapter.mcp`: the two MCP presentations and the `EnvironmentPostProcessor`.
+- `ToolpoolAutoConfiguration` is the composition root. It sits outside every ring
+  and wires them together, so it can import any framework.
+
+Put every rule that decides *what a tool is* in the domain. `Tool` owns its input
+schema, its search match and `bind`, which turns raw arguments into a validated
+`ToolCall`. `ToolName` owns the MCP naming rules, so both modes expose one name
+for one operation. An adapter must make no such decision.
+
+`OpenApiToolCatalogProvider` reads the spec one time, on the first call, and keeps
+the catalog for the life of the process. A spec change needs a restart. Add a
+refresh interval only when a running instance must pick up a new spec.
+
+`read_tool` answers the tool name, its description and its input schema. It does
+not answer the raw OpenAPI operation, so the domain carries one schema shape and
+both modes read it.
+
+`ToolpoolArchitectureTest` enforces the rules above with ArchUnit. If you add a
+ring or a third-party library, add a rule. To confirm that a new rule works,
+break it on purpose one time and watch the test fail.
+
+## Nullness
+
+Every package declares `@NullMarked` in `package-info.java`. The
+`everyPackageDeclaresThatItIsNullMarked` rule fails a package that does not.
+
+The main sources hold no `Objects.requireNonNull` call. Do not add one.
+`OpenApiToolCatalogTranslator` is the only class that builds a `Tool`, a
+`ToolParameter`, a `ToolBody` or an `HttpTarget`, so it is the one place that
+checks a value from outside.
+
 ## Entry points
 
 All developer actions go through `just`. Run `just --list --list-submodules` for the
@@ -106,14 +154,29 @@ together or Gradle downloads a second distribution.
 - `libs/toolpool` has a `lint` and a `format` moon task. `lint` checks
   `google-java-format` output, then runs `checkstyleMain` and `checkstyleTest`.
   `format` rewrites the sources, so it declares `runInCI: false` and `moon ci`
-  skips it. Checkstyle holds one rule, `DeclarationOrder`, in
+  skips it. Checkstyle holds `DeclarationOrder` and `UnusedImports`, in
   `libs/toolpool/config/checkstyle/checkstyle.xml`. Keep layout rules out of that
-  file, because `google-java-format` owns layout.
+  file, because `google-java-format` owns layout. `DeclarationOrder` compares the
+  access level of the static fields, so keep one access level for all of them in a
+  class of constants.
 - Java formatting is `google-java-format` from the dev shell, not a Gradle plugin:
   Gradle builds and tests, nothing else. Run `just format java`.
 - Nothing formats `*.gradle`. Hand-format those.
 - Dependency versions come from the platform BOMs declared in each `build.gradle`.
   Declare artifacts without a version unless the artifact is outside every BOM
-  (`swagger-parser` is the one exception today).
+  (`swagger-parser` and `archunit-junit5` are the two exceptions today). The
+  Spring Boot BOM manages `org.jspecify:jspecify`, so it needs no version.
 - `.gitignore` anchors `/build/` with a leading slash: an unanchored `build/` also
   matches `.just/build/` and silently untracks the build recipes.
+- Every moon `build` task calls the Gradle `assemble` task, not `build`, and every
+  moon `test` task declares `deps: ["~:build"]`. The Gradle `build` task runs
+  `test`, so a moon `build` task and a moon `test` task ran the Gradle `test` task
+  at the same time. The two processes then wrote the same files in
+  `build/test-results/test/` and the run failed with `NoSuchFileException` or
+  `EOFException`. Keep `assemble` in the `build` task, and keep the `~:build`
+  dependency, or the race comes back.
+- `/openapi/` holds generated specs and `.gitignore` ignores it. The
+  `toolpool-demo` integration tests read
+  `openapi/sample-rest-api-client.openapi.json`. If those tests fail on unexpected
+  paths or parameter locations, the file is stale: run `just openapi all` to write
+  it again from the running `sample-rest-api-client` app.

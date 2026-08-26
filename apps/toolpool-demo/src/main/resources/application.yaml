@@ -7,4 +7,3 @@ toolpool:
   mode: metatools
   spec-location: ./openapi/sample-rest-api-client.openapi.json
   base-url: http://localhost:18080
-  refresh-interval: 5m

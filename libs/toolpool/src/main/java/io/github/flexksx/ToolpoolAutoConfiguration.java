@@ -1,16 +1,14 @@
 package io.github.flexksx;
 
-import io.github.flexksx.mcp.McpDirectTools;
-import io.github.flexksx.mcp.McpGatewayMetatools;
-import io.github.flexksx.openapi.CachingOpenApiSpecRepository;
-import io.github.flexksx.openapi.OpenApiSpecReadException;
-import io.github.flexksx.openapi.OpenApiSpecReader;
-import io.github.flexksx.openapi.OpenApiSpecRepository;
-import io.github.flexksx.openapi.SwaggerOpenApiSpecReader;
-import io.github.flexksx.tools.RouteCaller;
+import io.github.flexksx.adapter.http.RestClientToolCallExecutor;
+import io.github.flexksx.adapter.mcp.McpDirectTools;
+import io.github.flexksx.adapter.mcp.McpGatewayMetatools;
+import io.github.flexksx.adapter.openapi.OpenApiToolCatalogProvider;
+import io.github.flexksx.application.ToolCallExecutor;
+import io.github.flexksx.application.ToolCatalogProvider;
+import io.github.flexksx.application.ToolCatalogUnavailableException;
+import io.github.flexksx.application.Toolpool;
 import io.modelcontextprotocol.server.McpServerFeatures.SyncToolSpecification;
-import java.time.Clock;
-import java.time.Duration;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -28,46 +26,32 @@ public class ToolpoolAutoConfiguration {
 
   @Bean
   @ConditionalOnMissingBean
-  OpenApiSpecReader openApiSpecReader() {
-    return new SwaggerOpenApiSpecReader();
+  ToolCatalogProvider toolCatalogProvider(@Value("${toolpool.spec-location}") String specLocation) {
+    return new OpenApiToolCatalogProvider(specLocation);
   }
 
   @Bean
   @ConditionalOnMissingBean
-  OpenApiSpecRepository openApiSpecRepository(
-      OpenApiSpecReader specReader,
-      @Value("${toolpool.refresh-interval:5m}") Duration refreshInterval) {
-    return new CachingOpenApiSpecRepository(specReader, refreshInterval, Clock.systemUTC());
+  ToolCallExecutor toolCallExecutor(@Value("${toolpool.base-url}") String baseUrl) {
+    return new RestClientToolCallExecutor(RestClient.builder().baseUrl(baseUrl).build());
   }
 
   @Bean
   @ConditionalOnMissingBean
-  RouteCaller routeCaller(@Value("${toolpool.base-url}") String baseUrl) {
-    return new RouteCaller(RestClient.builder().baseUrl(baseUrl).build());
+  Toolpool toolpool(ToolCatalogProvider catalogProvider, ToolCallExecutor callExecutor) {
+    return new Toolpool(catalogProvider, callExecutor);
   }
 
   @Bean
   @ConditionalOnProperty(name = MODE_PROPERTY, havingValue = MODE_METATOOLS, matchIfMissing = true)
-  McpGatewayMetatools mcpGatewayMetatools(
-      OpenApiSpecRepository specRepository,
-      @Value("${toolpool.spec-location}") String specLocation,
-      RouteCaller routeCaller) {
-    return new McpGatewayMetatools(specRepository, specLocation, routeCaller);
+  McpGatewayMetatools mcpGatewayMetatools(Toolpool toolpool) {
+    return new McpGatewayMetatools(toolpool);
   }
 
   @Bean
   @ConditionalOnProperty(name = MODE_PROPERTY, havingValue = MODE_DIRECT)
-  McpDirectTools mcpDirectTools(
-      OpenApiSpecRepository specRepository,
-      @Value("${toolpool.spec-location}") String specLocation,
-      RouteCaller routeCaller) {
-    return new McpDirectTools(specRepository, specLocation, routeCaller);
-  }
-
-  @Bean
-  @ConditionalOnProperty(name = MODE_PROPERTY, havingValue = MODE_DIRECT)
-  List<SyncToolSpecification> directToolSpecifications(McpDirectTools directTools)
-      throws OpenApiSpecReadException {
-    return directTools.toolSpecifications();
+  List<SyncToolSpecification> directToolSpecifications(Toolpool toolpool)
+      throws ToolCatalogUnavailableException {
+    return new McpDirectTools(toolpool).toolSpecifications();
   }
 }

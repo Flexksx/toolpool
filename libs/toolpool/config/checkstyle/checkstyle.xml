@@ -9,5 +9,8 @@
 
     <module name="TreeWalker">
         <module name="DeclarationOrder"/>
+        <module name="UnusedImports">
+            <property name="processJavadoc" value="true"/>
+        </module>
     </module>
 </module>

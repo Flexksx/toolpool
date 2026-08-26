@@ -7,14 +7,14 @@ dependsOn:
 tasks:
   build:
     command: "./gradlew"
-    args: [":apps:toolpool-demo:build"]
+    args: [":apps:toolpool-demo:assemble"]
     deps: ["^:build"]
     options:
       runFromWorkspaceRoot: true
   test:
     command: "./gradlew"
     args: [":apps:toolpool-demo:test"]
-    deps: ["^:build"]
+    deps: ["^:build", "~:build"]
     options:
       runFromWorkspaceRoot: true
   run:
