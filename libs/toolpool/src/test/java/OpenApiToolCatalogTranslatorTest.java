@@ -1,7 +1,7 @@
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import io.github.flexksx.adapter.openapi.OpenApiToolCatalogProvider;
+import io.github.flexksx.adapter.openapi.OpenApiToolCatalogSource;
 import io.github.flexksx.adapter.openapi.OpenApiToolCatalogTranslator;
 import io.github.flexksx.domain.http.HttpMethod;
 import io.github.flexksx.domain.http.HttpTarget;
@@ -123,6 +123,6 @@ public class OpenApiToolCatalogTranslatorTest {
   }
 
   private static ToolCatalog translate(String specLocation) throws Exception {
-    return new OpenApiToolCatalogProvider(specLocation).catalog();
+    return new OpenApiToolCatalogSource(specLocation).catalog();
   }
 }

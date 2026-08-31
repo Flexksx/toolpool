@@ -3,9 +3,9 @@ package io.github.flexksx;
 import io.github.flexksx.adapter.http.RestClientToolCallExecutor;
 import io.github.flexksx.adapter.mcp.McpDirectTools;
 import io.github.flexksx.adapter.mcp.McpGatewayMetatools;
-import io.github.flexksx.adapter.openapi.OpenApiToolCatalogProvider;
+import io.github.flexksx.adapter.openapi.OpenApiToolCatalogSource;
 import io.github.flexksx.application.ToolCallExecutor;
-import io.github.flexksx.application.ToolCatalogProvider;
+import io.github.flexksx.application.ToolCatalogSource;
 import io.github.flexksx.application.ToolCatalogUnavailableException;
 import io.github.flexksx.application.Toolpool;
 import io.modelcontextprotocol.server.McpServerFeatures.SyncToolSpecification;
@@ -26,8 +26,8 @@ public class ToolpoolAutoConfiguration {
 
   @Bean
   @ConditionalOnMissingBean
-  ToolCatalogProvider toolCatalogProvider(@Value("${toolpool.spec-location}") String specLocation) {
-    return new OpenApiToolCatalogProvider(specLocation);
+  ToolCatalogSource toolCatalogSource(@Value("${toolpool.spec-location}") String specLocation) {
+    return new OpenApiToolCatalogSource(specLocation);
   }
 
   @Bean
@@ -38,8 +38,8 @@ public class ToolpoolAutoConfiguration {
 
   @Bean
   @ConditionalOnMissingBean
-  Toolpool toolpool(ToolCatalogProvider catalogProvider, ToolCallExecutor callExecutor) {
-    return new Toolpool(catalogProvider, callExecutor);
+  Toolpool toolpool(ToolCatalogSource catalogSource, ToolCallExecutor callExecutor) {
+    return new Toolpool(catalogSource, callExecutor);
   }
 
   @Bean

@@ -1,6 +1,6 @@
 package io.github.flexksx.adapter.openapi;
 
-import io.github.flexksx.application.ToolCatalogProvider;
+import io.github.flexksx.application.ToolCatalogSource;
 import io.github.flexksx.application.ToolCatalogUnavailableException;
 import io.github.flexksx.domain.tool.ToolCatalog;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -9,7 +9,7 @@ import io.swagger.v3.parser.core.models.ParseOptions;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
 import org.jspecify.annotations.Nullable;
 
-public class OpenApiToolCatalogProvider implements ToolCatalogProvider {
+public class OpenApiToolCatalogSource implements ToolCatalogSource {
 
   private static final ParseOptions PARSE_OPTIONS = fullyResolvingParseOptions();
 
@@ -17,7 +17,7 @@ public class OpenApiToolCatalogProvider implements ToolCatalogProvider {
 
   private @Nullable ToolCatalog catalog;
 
-  public OpenApiToolCatalogProvider(String specLocation) {
+  public OpenApiToolCatalogSource(String specLocation) {
     this.specLocation = specLocation;
   }
 

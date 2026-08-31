@@ -1,6 +1,6 @@
-import io.github.flexksx.adapter.openapi.OpenApiToolCatalogProvider;
+import io.github.flexksx.adapter.openapi.OpenApiToolCatalogSource;
 import io.github.flexksx.application.ToolCallExecutor;
-import io.github.flexksx.application.ToolCatalogProvider;
+import io.github.flexksx.application.ToolCatalogSource;
 import io.github.flexksx.application.Toolpool;
 import io.github.flexksx.domain.tool.ToolCall;
 import io.github.flexksx.domain.tool.ToolCallResult;
@@ -13,12 +13,12 @@ final class ToolpoolFixtures {
 
   private ToolpoolFixtures() {}
 
-  static ToolCatalogProvider catalogProviderFor(String specLocation) {
-    return new OpenApiToolCatalogProvider(specLocation);
+  static ToolCatalogSource catalogSourceFor(String specLocation) {
+    return new OpenApiToolCatalogSource(specLocation);
   }
 
   static Toolpool toolpoolFor(String specLocation, ToolCallExecutor callExecutor) {
-    return new Toolpool(catalogProviderFor(specLocation), callExecutor);
+    return new Toolpool(catalogSourceFor(specLocation), callExecutor);
   }
 
   static final class RecordingCallExecutor implements ToolCallExecutor {

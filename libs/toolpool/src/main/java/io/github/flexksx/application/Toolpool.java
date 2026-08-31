@@ -10,28 +10,28 @@ import org.jspecify.annotations.Nullable;
 
 public class Toolpool {
 
-  private final ToolCatalogProvider catalogProvider;
+  private final ToolCatalogSource catalogSource;
   private final ToolCallExecutor callExecutor;
 
-  public Toolpool(ToolCatalogProvider catalogProvider, ToolCallExecutor callExecutor) {
-    this.catalogProvider = catalogProvider;
+  public Toolpool(ToolCatalogSource catalogSource, ToolCallExecutor callExecutor) {
+    this.catalogSource = catalogSource;
     this.callExecutor = callExecutor;
   }
 
   public List<Tool> tools() throws ToolCatalogUnavailableException {
-    return catalogProvider.catalog().tools();
+    return catalogSource.catalog().tools();
   }
 
   public List<Tool> search(@Nullable String query) throws ToolCatalogUnavailableException {
-    return catalogProvider.catalog().search(query);
+    return catalogSource.catalog().search(query);
   }
 
   public Tool read(ToolName name) throws ToolCatalogUnavailableException, UnknownToolException {
-    return catalogProvider.catalog().find(name);
+    return catalogSource.catalog().find(name);
   }
 
   public ToolCallResult call(ToolName name, @Nullable Map<String, Object> arguments)
       throws ToolCatalogUnavailableException, UnknownToolException {
-    return callExecutor.execute(catalogProvider.catalog().find(name).bind(arguments));
+    return callExecutor.execute(catalogSource.catalog().find(name).bind(arguments));
   }
 }
