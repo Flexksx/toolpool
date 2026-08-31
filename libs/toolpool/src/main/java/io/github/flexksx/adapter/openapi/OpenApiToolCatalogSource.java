@@ -24,7 +24,7 @@ public class OpenApiToolCatalogSource implements ToolCatalogSource {
   @Override
   public synchronized ToolCatalog catalog() throws ToolCatalogUnavailableException {
     if (catalog == null) {
-      catalog = OpenApiToolCatalogTranslator.translate(specAtSpecLocation());
+      catalog = OpenApiToolCatalogMapper.map(specAtSpecLocation());
     }
     return catalog;
   }

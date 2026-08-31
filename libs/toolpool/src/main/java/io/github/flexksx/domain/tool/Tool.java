@@ -13,10 +13,7 @@ public record Tool(
     ToolName name,
     HttpTarget target,
     ToolDocumentation documentation,
-    List<ToolParameter> parameters,
-    @Nullable ToolBody body) {
-
-  public static final String BODY_ARGUMENT = "body";
+    List<ToolParameter> parameters) {
 
   private static final String OBJECT_TYPE = "object";
   private static final String TYPE_KEYWORD = "type";
@@ -50,13 +47,6 @@ public record Tool(
       }
     }
 
-    if (body != null) {
-      properties.put(BODY_ARGUMENT, body.describedSchema().asMap());
-      if (body.required()) {
-        requiredProperties.add(BODY_ARGUMENT);
-      }
-    }
-
     Map<String, Object> inputSchema = new LinkedHashMap<>();
     inputSchema.put(TYPE_KEYWORD, OBJECT_TYPE);
     inputSchema.put(PROPERTIES_KEYWORD, properties);
@@ -69,6 +59,7 @@ public record Tool(
     Map<String, Object> pathVariables = new LinkedHashMap<>();
     Map<String, List<String>> queryParameters = new LinkedHashMap<>();
     Map<String, String> headers = new LinkedHashMap<>();
+    Object body = null;
 
     for (ToolParameter parameter : parameters) {
       Object value = given.get(parameter.name());
@@ -82,15 +73,11 @@ public record Tool(
         case PATH -> pathVariables.put(parameter.name(), value);
         case QUERY -> queryParameters.put(parameter.name(), List.of(String.valueOf(value)));
         case HEADER -> headers.put(parameter.name(), String.valueOf(value));
+        case BODY -> body = value;
       }
     }
 
-    Object givenBody = given.get(BODY_ARGUMENT);
-    if (givenBody == null && body != null && body.required()) {
-      throw new MissingRequiredArgumentException(name, BODY_ARGUMENT);
-    }
-
-    return new ToolCall(name, target, pathVariables, queryParameters, headers, givenBody);
+    return new ToolCall(name, target, pathVariables, queryParameters, headers, body);
   }
 
   private String searchableText() {

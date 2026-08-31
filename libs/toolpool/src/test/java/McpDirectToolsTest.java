@@ -117,8 +117,7 @@ public class McpDirectToolsTest {
         ToolName.of(rawName),
         new HttpTarget(HttpMethod.GET, "/users"),
         new ToolDocumentation(summary, description, List.of()),
-        List.of(),
-        null);
+        List.of());
   }
 
   private static Tool toolRequiringAPathId() {
@@ -132,8 +131,7 @@ public class McpDirectToolsTest {
                 ParameterLocation.PATH,
                 true,
                 new JsonSchema(Map.of("type", "string")),
-                null)),
-        null);
+                null)));
   }
 
   private static String textOf(McpSchema.CallToolResult result) {

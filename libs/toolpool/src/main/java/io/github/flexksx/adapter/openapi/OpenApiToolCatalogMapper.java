@@ -5,7 +5,6 @@ import io.github.flexksx.domain.http.HttpTarget;
 import io.github.flexksx.domain.http.ParameterLocation;
 import io.github.flexksx.domain.schema.JsonSchema;
 import io.github.flexksx.domain.tool.Tool;
-import io.github.flexksx.domain.tool.ToolBody;
 import io.github.flexksx.domain.tool.ToolCatalog;
 import io.github.flexksx.domain.tool.ToolDocumentation;
 import io.github.flexksx.domain.tool.ToolName;
@@ -20,7 +19,7 @@ import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -29,14 +28,16 @@ import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class OpenApiToolCatalogTranslator {
+public final class OpenApiToolCatalogMapper {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(OpenApiToolCatalogTranslator.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(OpenApiToolCatalogMapper.class);
   private static final String JSON_CONTENT_TYPE = "application/json";
+  private static final Set<ParameterLocation> DECLARABLE_LOCATIONS =
+      EnumSet.of(ParameterLocation.PATH, ParameterLocation.QUERY, ParameterLocation.HEADER);
 
-  private OpenApiToolCatalogTranslator() {}
+  private OpenApiToolCatalogMapper() {}
 
-  public static ToolCatalog translate(OpenAPI spec) {
+  public static ToolCatalog map(OpenAPI spec) {
     List<Tool> tools = new ArrayList<>();
     Paths paths = spec.getPaths();
     if (paths != null) {
@@ -65,8 +66,7 @@ public final class OpenApiToolCatalogTranslator {
             ToolName.of(operationId),
             target,
             documentationOf(operation),
-            parametersOf(target, operation),
-            bodyOf(target, operation.getRequestBody())));
+            parametersOf(target, operation)));
   }
 
   private static ToolDocumentation documentationOf(Operation operation) {
@@ -76,48 +76,65 @@ public final class OpenApiToolCatalogTranslator {
   }
 
   private static List<ToolParameter> parametersOf(HttpTarget target, Operation operation) {
-    if (operation.getParameters() == null) {
-      return List.of();
-    }
     List<ToolParameter> toolParameters = new ArrayList<>();
     Set<String> seenNames = new HashSet<>();
-    for (Parameter parameter : operation.getParameters()) {
-      Optional<ParameterLocation> location = parameterLocationOf(parameter.getIn());
-      if (location.isEmpty()) {
-        LOGGER.warn(
-            "Skipped the parameter {} of {} because the location {} is not supported",
-            parameter.getName(),
-            target.describe(),
-            parameter.getIn());
-        continue;
+    if (operation.getParameters() != null) {
+      for (Parameter parameter : operation.getParameters()) {
+        declaredParameterOf(target, parameter, seenNames).ifPresent(toolParameters::add);
       }
-      if (!seenNames.add(parameter.getName())) {
-        LOGGER.warn(
-            "Skipped the parameter {} of {} because that name is declared more than once",
-            parameter.getName(),
-            target.describe());
-        continue;
-      }
-      toolParameters.add(
-          new ToolParameter(
-              parameter.getName(),
-              location.get(),
-              Boolean.TRUE.equals(parameter.getRequired()),
-              jsonSchemaOf(parameter.getSchema()),
-              parameter.getDescription()));
     }
+    bodyOf(target, operation.getRequestBody())
+        .ifPresent(
+            body -> {
+              if (seenNames.add(body.name())) {
+                toolParameters.add(body);
+              } else {
+                LOGGER.warn(
+                    "Ignored the request body of {} because a parameter already claims the name {}",
+                    target.describe(),
+                    body.name());
+              }
+            });
     return List.copyOf(toolParameters);
   }
 
+  private static Optional<ToolParameter> declaredParameterOf(
+      HttpTarget target, Parameter parameter, Set<String> seenNames) {
+    Optional<ParameterLocation> location = parameterLocationOf(parameter.getIn());
+    if (location.isEmpty()) {
+      LOGGER.warn(
+          "Skipped the parameter {} of {} because the location {} is not supported",
+          parameter.getName(),
+          target.describe(),
+          parameter.getIn());
+      return Optional.empty();
+    }
+    if (!seenNames.add(parameter.getName())) {
+      LOGGER.warn(
+          "Skipped the parameter {} of {} because that name is declared more than once",
+          parameter.getName(),
+          target.describe());
+      return Optional.empty();
+    }
+    return Optional.of(
+        new ToolParameter(
+            parameter.getName(),
+            location.get(),
+            Boolean.TRUE.equals(parameter.getRequired()),
+            jsonSchemaOf(parameter.getSchema()),
+            parameter.getDescription()));
+  }
+
   private static Optional<ParameterLocation> parameterLocationOf(@Nullable String openApiLocation) {
-    return Arrays.stream(ParameterLocation.values())
+    return DECLARABLE_LOCATIONS.stream()
         .filter(location -> location.name().equalsIgnoreCase(openApiLocation))
         .findFirst();
   }
 
-  private static @Nullable ToolBody bodyOf(HttpTarget target, @Nullable RequestBody requestBody) {
+  private static Optional<ToolParameter> bodyOf(
+      HttpTarget target, @Nullable RequestBody requestBody) {
     if (requestBody == null || requestBody.getContent() == null) {
-      return null;
+      return Optional.empty();
     }
     MediaType jsonContent = requestBody.getContent().get(JSON_CONTENT_TYPE);
     if (jsonContent == null) {
@@ -125,12 +142,13 @@ public final class OpenApiToolCatalogTranslator {
           "Ignored the request body of {} because it declares no {} content",
           target.describe(),
           JSON_CONTENT_TYPE);
-      return null;
+      return Optional.empty();
     }
-    return new ToolBody(
-        Boolean.TRUE.equals(requestBody.getRequired()),
-        jsonSchemaOf(jsonContent.getSchema()),
-        requestBody.getDescription());
+    return Optional.of(
+        ToolParameter.body(
+            Boolean.TRUE.equals(requestBody.getRequired()),
+            jsonSchemaOf(jsonContent.getSchema()),
+            requestBody.getDescription()));
   }
 
   private static JsonSchema jsonSchemaOf(@Nullable Schema<?> schema) {

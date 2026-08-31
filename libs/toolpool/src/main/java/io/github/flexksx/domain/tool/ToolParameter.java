@@ -11,10 +11,17 @@ public record ToolParameter(
     JsonSchema schema,
     @Nullable String description) {
 
+  public static final String BODY_NAME = "body";
+
   public ToolParameter {
     if (name.isBlank()) {
       throw new IllegalArgumentException("A parameter name cannot be blank");
     }
+  }
+
+  public static ToolParameter body(
+      boolean required, JsonSchema schema, @Nullable String description) {
+    return new ToolParameter(BODY_NAME, ParameterLocation.BODY, required, schema, description);
   }
 
   public JsonSchema describedSchema() {

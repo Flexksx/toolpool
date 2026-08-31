@@ -58,7 +58,6 @@ public class ToolCatalogTest {
         name,
         new HttpTarget(HttpMethod.GET, path),
         new ToolDocumentation(summary, null, List.of()),
-        List.of(),
-        null);
+        List.of());
   }
 }

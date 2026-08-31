@@ -7,7 +7,6 @@ import io.github.flexksx.domain.http.ParameterLocation;
 import io.github.flexksx.domain.schema.JsonSchema;
 import io.github.flexksx.domain.tool.MissingRequiredArgumentException;
 import io.github.flexksx.domain.tool.Tool;
-import io.github.flexksx.domain.tool.ToolBody;
 import io.github.flexksx.domain.tool.ToolCall;
 import io.github.flexksx.domain.tool.ToolDocumentation;
 import io.github.flexksx.domain.tool.ToolName;
@@ -58,14 +57,17 @@ public class ToolTest {
       new ToolParameter(ARGUMENT_VERBOSE, ParameterLocation.QUERY, false, SCHEMA_BOOLEAN, null);
   private static final ToolParameter PARAMETER_OPTIONAL_HEADER_REQUEST_ID =
       new ToolParameter(ARGUMENT_REQUEST_ID, ParameterLocation.HEADER, false, SCHEMA_STRING, null);
+  private static final ToolParameter PARAMETER_REQUIRED_BODY =
+      ToolParameter.body(true, SCHEMA_OBJECT, null);
+  private static final ToolParameter PARAMETER_OPTIONAL_BODY =
+      ToolParameter.body(false, JsonSchema.empty(), null);
 
   private final Tool getUser =
       toolWith(
           List.of(
               PARAMETER_REQUIRED_PATH_IDENTIFIER,
               PARAMETER_OPTIONAL_QUERY_VERBOSE,
-              PARAMETER_OPTIONAL_HEADER_REQUEST_ID),
-          null);
+              PARAMETER_OPTIONAL_HEADER_REQUEST_ID));
 
   @Test
   void inputSchemaOfAToolWithParameters_describesEachOneAndRequiresOnlyTheRequiredOnes() {
@@ -84,14 +86,14 @@ public class ToolTest {
   @Test
   void inputSchemaOfAToolWithABody_nestsTheBodyUnderOneRequiredProperty() {
     Tool withRequiredBody =
-        toolWith(
-            List.of(PARAMETER_REQUIRED_PATH_IDENTIFIER), new ToolBody(true, SCHEMA_OBJECT, null));
+        toolWith(List.of(PARAMETER_REQUIRED_PATH_IDENTIFIER, PARAMETER_REQUIRED_BODY));
 
     Map<String, Object> inputSchema = withRequiredBody.inputSchema().asMap();
 
-    assertThat(propertiesOf(inputSchema)).containsOnlyKeys(ARGUMENT_IDENTIFIER, Tool.BODY_ARGUMENT);
+    assertThat(propertiesOf(inputSchema))
+        .containsOnlyKeys(ARGUMENT_IDENTIFIER, ToolParameter.BODY_NAME);
     assertThat(inputSchema)
-        .containsEntry(KEYWORD_REQUIRED, List.of(ARGUMENT_IDENTIFIER, Tool.BODY_ARGUMENT));
+        .containsEntry(KEYWORD_REQUIRED, List.of(ARGUMENT_IDENTIFIER, ToolParameter.BODY_NAME));
   }
 
   @Test
@@ -149,9 +151,9 @@ public class ToolTest {
 
   @Test
   void bindTheBodyArgument_sendsItToTheCallBody() {
-    Tool withRequiredBody = toolWith(List.of(), new ToolBody(true, SCHEMA_OBJECT, null));
+    Tool withRequiredBody = toolWith(List.of(PARAMETER_REQUIRED_BODY));
 
-    ToolCall call = withRequiredBody.bind(Map.of(Tool.BODY_ARGUMENT, VALUE_BODY));
+    ToolCall call = withRequiredBody.bind(Map.of(ToolParameter.BODY_NAME, VALUE_BODY));
 
     assertThat(call.body()).isEqualTo(VALUE_BODY);
   }
@@ -159,21 +161,17 @@ public class ToolTest {
   @Test
   void bindWithoutARequiredBody_throwsNamingTheBodyAndTheTool() {
     Tool withRequiredBody =
-        toolWith(
-            List.of(PARAMETER_REQUIRED_PATH_IDENTIFIER),
-            new ToolBody(true, JsonSchema.empty(), null));
+        toolWith(List.of(PARAMETER_REQUIRED_PATH_IDENTIFIER, PARAMETER_REQUIRED_BODY));
 
     assertThatThrownBy(() -> withRequiredBody.bind(Map.of(ARGUMENT_IDENTIFIER, VALUE_IDENTIFIER)))
         .isInstanceOf(MissingRequiredArgumentException.class)
-        .hasMessageContainingAll(Tool.BODY_ARGUMENT, NAME_GET_USER.value());
+        .hasMessageContainingAll(ToolParameter.BODY_NAME, NAME_GET_USER.value());
   }
 
   @Test
   void bindWithoutAnOptionalBody_bindsTheCallWithoutABody() {
     Tool withOptionalBody =
-        toolWith(
-            List.of(PARAMETER_REQUIRED_PATH_IDENTIFIER),
-            new ToolBody(false, JsonSchema.empty(), null));
+        toolWith(List.of(PARAMETER_REQUIRED_PATH_IDENTIFIER, PARAMETER_OPTIONAL_BODY));
 
     assertThat(withOptionalBody.bind(Map.of(ARGUMENT_IDENTIFIER, VALUE_IDENTIFIER)).body())
         .isNull();
@@ -209,17 +207,12 @@ public class ToolTest {
         TARGET_GET_USER,
         new ToolDocumentation(
             DOCUMENTATION_SUMMARY, DOCUMENTATION_DESCRIPTION, List.of(DOCUMENTATION_TAG)),
-        List.of(),
-        null);
+        List.of());
   }
 
-  private static Tool toolWith(List<ToolParameter> parameters, ToolBody body) {
+  private static Tool toolWith(List<ToolParameter> parameters) {
     return new Tool(
-        NAME_GET_USER,
-        TARGET_GET_USER,
-        new ToolDocumentation(null, null, List.of()),
-        parameters,
-        body);
+        NAME_GET_USER, TARGET_GET_USER, new ToolDocumentation(null, null, List.of()), parameters);
   }
 
   @SuppressWarnings("unchecked")

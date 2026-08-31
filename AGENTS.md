@@ -32,7 +32,7 @@ per-unit wrapper.
 - `application`: the `Toolpool` service and its two outbound ports,
   `ToolCatalogProvider` and `ToolCallExecutor`. It depends on `domain` only.
 - `adapter.openapi`: the anti-corruption layer.
-  `OpenApiToolCatalogTranslator` maps one `OpenAPI` object to one `ToolCatalog`, and
+  `OpenApiToolCatalogMapper` maps one `OpenAPI` object to one `ToolCatalog`, and
   `OpenApiToolCatalogProvider` reads the spec and holds that catalog. This is the
   only package that can import `io.swagger`.
 - `adapter.http`: `RestClientToolCallExecutor` sends one bound `ToolCall`.
@@ -42,7 +42,9 @@ per-unit wrapper.
 
 Put every rule that decides *what a tool is* in the domain. `Tool` owns its input
 schema, its search match and `bind`, which turns raw arguments into a validated
-`ToolCall`. `ToolName` owns the MCP naming rules, so both modes expose one name
+`ToolCall`. A request body is one more `ToolParameter`, at
+`ParameterLocation.BODY` and named `body`, so `inputSchema` and `bind` read one
+list and MCP sees one flat argument map. `ToolName` owns the MCP naming rules, so both modes expose one name
 for one operation. An adapter must make no such decision.
 
 `OpenApiToolCatalogProvider` reads the spec one time, on the first call, and keeps
@@ -63,9 +65,9 @@ Every package declares `@NullMarked` in `package-info.java`. The
 `everyPackageDeclaresThatItIsNullMarked` rule fails a package that does not.
 
 The main sources hold no `Objects.requireNonNull` call. Do not add one.
-`OpenApiToolCatalogTranslator` is the only class that builds a `Tool`, a
-`ToolParameter`, a `ToolBody` or an `HttpTarget`, so it is the one place that
-checks a value from outside.
+`OpenApiToolCatalogMapper` is the only class that builds a `Tool`, a
+`ToolParameter` or an `HttpTarget`, so it is the one place that checks a value
+from outside.
 
 ## Entry points
 
