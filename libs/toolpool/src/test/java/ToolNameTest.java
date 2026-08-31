@@ -13,8 +13,9 @@ public class ToolNameTest {
   @ParameterizedTest
   @CsvSource({
     "getUser, getUser",
-    "'get /users/{id}', get__users__id_",
-    "list.users, list_users",
+    "'get /users/{id}', 'get_/users/_id_'",
+    "list.users, list.users",
+    "v1/getUsers, v1/getUsers",
     "keep-underscores_and-dashes, keep-underscores_and-dashes"
   })
   void ofARawName_replacesEveryCharacterThatMcpToolNamesDisallow(
@@ -24,23 +25,51 @@ public class ToolNameTest {
 
   @Test
   void ofARawNameLongerThanTheLimit_truncatesItToTheLimit() {
-    String rawName = "o".repeat(ToolName.MAX_LENGTH + 10);
+    String rawName = "o".repeat(ToolName.MCP_TOOL_MAX_CHARACTERS_LENGTH + 10);
 
-    assertThat(ToolName.of(rawName).value()).isEqualTo("o".repeat(ToolName.MAX_LENGTH));
+    assertThat(ToolName.of(rawName).value())
+        .isEqualTo("o".repeat(ToolName.MCP_TOOL_MAX_CHARACTERS_LENGTH));
+  }
+
+  @Test
+  void ofARawNameWithMixedCase_keepsTheOriginalCase() {
+    assertThat(ToolName.of("GeT_UsEr-1.2/3").value()).isEqualTo("GeT_UsEr-1.2/3");
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"", "   ", "has spaces", "has.dots"})
-  void constructAnUnusableName_throwsInvalidToolName(String value) {
-    assertThatThrownBy(() -> new ToolName(value)).isInstanceOf(InvalidToolNameException.class);
+  @ValueSource(strings = {"", "   "})
+  void constructABlankName_throwsInvalidToolName(String value) {
+    assertThatThrownBy(() -> new ToolName(value))
+        .isInstanceOf(InvalidToolNameException.class)
+        .hasMessageContaining("cannot be blank");
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"has spaces", "has{braces}", "café"})
+  void constructANameWithDisallowedCharacters_throwsInvalidToolName(String value) {
+    assertThatThrownBy(() -> new ToolName(value))
+        .isInstanceOf(InvalidToolNameException.class)
+        .hasMessageContaining("other than a-z A-Z 0-9 _ . / -");
   }
 
   @Test
   void constructANameLongerThanTheLimit_throwsInvalidToolName() {
-    String value = "o".repeat(ToolName.MAX_LENGTH + 1);
+    String value = "o".repeat(ToolName.MCP_TOOL_MAX_CHARACTERS_LENGTH + 1);
 
     assertThatThrownBy(() -> new ToolName(value))
         .isInstanceOf(InvalidToolNameException.class)
-        .hasMessageContaining(String.valueOf(ToolName.MAX_LENGTH));
+        .hasMessageContaining(String.valueOf(ToolName.MCP_TOOL_MAX_CHARACTERS_LENGTH));
+  }
+
+  @Test
+  void constructANameOfTheMaximumLength_isValid() {
+    String value = "a1.b/c-d".repeat(8);
+
+    assertThat(new ToolName(value).value()).isEqualTo(value);
+  }
+
+  @Test
+  void constructANameOfOneCharacter_isValid() {
+    assertThat(new ToolName("_").value()).isEqualTo("_");
   }
 }

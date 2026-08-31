@@ -12,8 +12,10 @@ result-*
 /build/
 libs/*/build/
 libs/*/.gradle/
+libs/*/out/
 apps/*/build/
 apps/*/.gradle/
+apps/*/out/
 *.iml
 
 # Generated OpenAPI specs

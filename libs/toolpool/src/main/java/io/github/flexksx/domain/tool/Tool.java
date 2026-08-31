@@ -85,7 +85,7 @@ public record Tool(
       }
     }
 
-    @Nullable Object givenBody = given.get(BODY_ARGUMENT);
+    Object givenBody = given.get(BODY_ARGUMENT);
     if (givenBody == null && body != null && body.required()) {
       throw new MissingRequiredArgumentException(name, BODY_ARGUMENT);
     }

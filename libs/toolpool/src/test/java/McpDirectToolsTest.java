@@ -51,7 +51,7 @@ public class McpDirectToolsTest {
 
     assertThat(directTools.toolSpecifications())
         .extracting(specification -> specification.tool().name())
-        .containsExactly("get__users__id_");
+        .containsExactly("get_/users/_id_");
   }
 
   @Test

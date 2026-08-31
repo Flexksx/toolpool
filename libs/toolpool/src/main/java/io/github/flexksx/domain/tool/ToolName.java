@@ -4,33 +4,42 @@ import java.util.regex.Pattern;
 
 public record ToolName(String value) {
 
-  public static final int MAX_LENGTH = 64;
+  public static final int MCP_TOOL_MAX_CHARACTERS_LENGTH = 64;
 
-  private static final Pattern UNSUPPORTED_CHARACTERS = Pattern.compile("[^a-zA-Z0-9_-]");
-  private static final String REPLACEMENT = "_";
+  private static final String MCP_TOOL_NAME_CHARACTERS = "a-zA-Z0-9._/-";
+
+  private static final Pattern MCP_TOOL_NAME =
+      Pattern.compile("[" + MCP_TOOL_NAME_CHARACTERS + "]+");
+  private static final Pattern UNALLOWED_MCP_TOOL_NAME =
+      Pattern.compile("[^" + MCP_TOOL_NAME_CHARACTERS + "]");
+  private static final String UNALLOWED_MCP_TOOL_NAME_CHARACTER_REPLACEMENT = "_";
 
   public ToolName {
     if (value.isBlank()) {
       throw new InvalidToolNameException("A tool name cannot be blank");
     }
-    if (value.length() > MAX_LENGTH) {
+    if (value.length() > MCP_TOOL_MAX_CHARACTERS_LENGTH) {
       throw new InvalidToolNameException(
-          "The tool name " + value + " is longer than " + MAX_LENGTH + " characters");
+          "The tool name "
+              + value
+              + " is longer than "
+              + MCP_TOOL_MAX_CHARACTERS_LENGTH
+              + " characters");
     }
-    if (UNSUPPORTED_CHARACTERS.matcher(value).find()) {
+    if (!MCP_TOOL_NAME.matcher(value).matches()) {
       throw new InvalidToolNameException(
-          "The tool name " + value + " holds characters other than letters, digits, _ and -");
+          "The tool name " + value + " holds characters other than a-z A-Z 0-9 _ . / -");
     }
   }
 
   public static ToolName of(String rawName) {
-    String sanitized = UNSUPPORTED_CHARACTERS.matcher(rawName).replaceAll(REPLACEMENT);
+    String sanitized =
+        UNALLOWED_MCP_TOOL_NAME
+            .matcher(rawName)
+            .replaceAll(UNALLOWED_MCP_TOOL_NAME_CHARACTER_REPLACEMENT);
     return new ToolName(
-        sanitized.length() <= MAX_LENGTH ? sanitized : sanitized.substring(0, MAX_LENGTH));
-  }
-
-  @Override
-  public String toString() {
-    return value;
+        sanitized.length() <= MCP_TOOL_MAX_CHARACTERS_LENGTH
+            ? sanitized
+            : sanitized.substring(0, MCP_TOOL_MAX_CHARACTERS_LENGTH));
   }
 }
