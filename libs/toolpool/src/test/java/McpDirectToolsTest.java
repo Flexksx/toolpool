@@ -1,7 +1,6 @@
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.github.flexksx.adapter.mcp.McpDirectTools;
-import io.github.flexksx.application.ToolCallExecutor;
 import io.github.flexksx.application.ToolCatalogProvider;
 import io.github.flexksx.application.Toolpool;
 import io.github.flexksx.domain.http.HttpMethod;
@@ -102,7 +101,7 @@ public class McpDirectToolsTest {
   private McpDirectTools directToolsOver(Tool tool) {
     ToolCatalog catalog = ToolCatalog.of(List.of(tool));
     ToolCatalogProvider provider = () -> catalog;
-    return new McpDirectTools(new Toolpool(provider, (ToolCallExecutor) callExecutor));
+    return new McpDirectTools(new Toolpool(provider, callExecutor));
   }
 
   private static McpSchema.CallToolResult callFirstTool(

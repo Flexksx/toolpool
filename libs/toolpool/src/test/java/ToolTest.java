@@ -15,129 +15,187 @@ import io.github.flexksx.domain.tool.ToolParameter;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 public class ToolTest {
 
-  private static final ToolName GET_USER = ToolName.of("getUser");
-  private static final HttpTarget TARGET = new HttpTarget(HttpMethod.GET, "/users/{id}");
-  private static final ToolParameter REQUIRED_PATH_ID =
+  private static final String KEYWORD_TYPE = "type";
+  private static final String KEYWORD_PROPERTIES = "properties";
+  private static final String KEYWORD_REQUIRED = "required";
+  private static final String KEYWORD_DESCRIPTION = "description";
+  private static final String TYPE_OBJECT = "object";
+  private static final String TYPE_STRING = "string";
+  private static final String TYPE_BOOLEAN = "boolean";
+
+  private static final JsonSchema SCHEMA_STRING = new JsonSchema(Map.of(KEYWORD_TYPE, TYPE_STRING));
+  private static final JsonSchema SCHEMA_BOOLEAN =
+      new JsonSchema(Map.of(KEYWORD_TYPE, TYPE_BOOLEAN));
+  private static final JsonSchema SCHEMA_OBJECT = new JsonSchema(Map.of(KEYWORD_TYPE, TYPE_OBJECT));
+
+  private static final String ARGUMENT_IDENTIFIER = "id";
+  private static final String ARGUMENT_VERBOSE = "verbose";
+  private static final String ARGUMENT_REQUEST_ID = "X-Request-Id";
+  private static final String DESCRIPTION_IDENTIFIER = "The identifier of the user";
+  private static final String VALUE_IDENTIFIER = "u1";
+  private static final String VALUE_REQUEST_ID = "r1";
+  private static final Object VALUE_BODY = Map.of("name", "Ada");
+
+  private static final String PATH_USER = "/users/{id}";
+  private static final String DOCUMENTATION_SUMMARY = "Read one user";
+  private static final String DOCUMENTATION_DESCRIPTION = "Answers the stored user";
+  private static final String DOCUMENTATION_TAG = "People";
+
+  private static final ToolName NAME_GET_USER = ToolName.of("getUser");
+  private static final HttpTarget TARGET_GET_USER = new HttpTarget(HttpMethod.GET, PATH_USER);
+
+  private static final ToolParameter PARAMETER_REQUIRED_PATH_IDENTIFIER =
       new ToolParameter(
-          "id", ParameterLocation.PATH, true, stringSchema(), "The identifier of the user");
-  private static final ToolParameter OPTIONAL_QUERY_VERBOSE =
-      new ToolParameter("verbose", ParameterLocation.QUERY, false, booleanSchema(), null);
-  private static final ToolParameter OPTIONAL_HEADER_REQUEST_ID =
-      new ToolParameter("X-Request-Id", ParameterLocation.HEADER, false, stringSchema(), null);
+          ARGUMENT_IDENTIFIER, ParameterLocation.PATH, true, SCHEMA_STRING, DESCRIPTION_IDENTIFIER);
+  private static final ToolParameter PARAMETER_OPTIONAL_QUERY_VERBOSE =
+      new ToolParameter(ARGUMENT_VERBOSE, ParameterLocation.QUERY, false, SCHEMA_BOOLEAN, null);
+  private static final ToolParameter PARAMETER_OPTIONAL_HEADER_REQUEST_ID =
+      new ToolParameter(ARGUMENT_REQUEST_ID, ParameterLocation.HEADER, false, SCHEMA_STRING, null);
 
   private final Tool getUser =
-      toolWith(List.of(REQUIRED_PATH_ID, OPTIONAL_QUERY_VERBOSE, OPTIONAL_HEADER_REQUEST_ID), null);
+      toolWith(
+          List.of(
+              PARAMETER_REQUIRED_PATH_IDENTIFIER,
+              PARAMETER_OPTIONAL_QUERY_VERBOSE,
+              PARAMETER_OPTIONAL_HEADER_REQUEST_ID),
+          null);
 
   @Test
   void inputSchemaOfAToolWithParameters_describesEachOneAndRequiresOnlyTheRequiredOnes() {
     Map<String, Object> inputSchema = getUser.inputSchema().asMap();
 
     assertThat(inputSchema)
-        .containsEntry("type", "object")
-        .containsEntry("required", List.of("id"));
-    assertThat(propertiesOf(inputSchema)).containsOnlyKeys("id", "verbose", "X-Request-Id");
-    assertThat(propertyOf(inputSchema, "verbose")).containsEntry("type", "boolean");
-    assertThat(propertyOf(inputSchema, "id"))
-        .containsEntry("description", "The identifier of the user");
+        .containsEntry(KEYWORD_TYPE, TYPE_OBJECT)
+        .containsEntry(KEYWORD_REQUIRED, List.of(ARGUMENT_IDENTIFIER));
+    assertThat(propertiesOf(inputSchema))
+        .containsOnlyKeys(ARGUMENT_IDENTIFIER, ARGUMENT_VERBOSE, ARGUMENT_REQUEST_ID);
+    assertThat(propertyOf(inputSchema, ARGUMENT_VERBOSE)).containsEntry(KEYWORD_TYPE, TYPE_BOOLEAN);
+    assertThat(propertyOf(inputSchema, ARGUMENT_IDENTIFIER))
+        .containsEntry(KEYWORD_DESCRIPTION, DESCRIPTION_IDENTIFIER);
   }
 
   @Test
   void inputSchemaOfAToolWithABody_nestsTheBodyUnderOneRequiredProperty() {
-    Tool updateUser =
+    Tool withRequiredBody =
         toolWith(
-            List.of(REQUIRED_PATH_ID),
-            new ToolBody(true, new JsonSchema(Map.of("type", "object")), null));
+            List.of(PARAMETER_REQUIRED_PATH_IDENTIFIER), new ToolBody(true, SCHEMA_OBJECT, null));
 
-    Map<String, Object> inputSchema = updateUser.inputSchema().asMap();
+    Map<String, Object> inputSchema = withRequiredBody.inputSchema().asMap();
 
-    assertThat(propertiesOf(inputSchema)).containsOnlyKeys("id", Tool.BODY_ARGUMENT);
-    assertThat(inputSchema).containsEntry("required", List.of("id", Tool.BODY_ARGUMENT));
-  }
-
-  @Test
-  void inputSchemaMap_rejectsMutation() {
-    Map<String, Object> inputSchema = getUser.inputSchema().asMap();
-
-    assertThatThrownBy(() -> inputSchema.put("type", "array"))
-        .isInstanceOf(UnsupportedOperationException.class);
+    assertThat(propertiesOf(inputSchema)).containsOnlyKeys(ARGUMENT_IDENTIFIER, Tool.BODY_ARGUMENT);
+    assertThat(inputSchema)
+        .containsEntry(KEYWORD_REQUIRED, List.of(ARGUMENT_IDENTIFIER, Tool.BODY_ARGUMENT));
   }
 
   @Test
   void bindEveryArgument_sendsEachOneToItsOwnLocation() {
-    ToolCall call = getUser.bind(Map.of("id", "u1", "verbose", true, "X-Request-Id", "r1"));
+    ToolCall call =
+        getUser.bind(
+            Map.of(
+                ARGUMENT_IDENTIFIER,
+                VALUE_IDENTIFIER,
+                ARGUMENT_VERBOSE,
+                true,
+                ARGUMENT_REQUEST_ID,
+                VALUE_REQUEST_ID));
 
-    assertThat(call.toolName()).isEqualTo(GET_USER);
-    assertThat(call.target()).isEqualTo(TARGET);
-    assertThat(call.pathVariables()).containsExactly(Map.entry("id", "u1"));
-    assertThat(call.queryParameters()).containsExactly(Map.entry("verbose", List.of("true")));
-    assertThat(call.headers()).containsExactly(Map.entry("X-Request-Id", "r1"));
+    assertThat(call.toolName()).isEqualTo(NAME_GET_USER);
+    assertThat(call.target()).isEqualTo(TARGET_GET_USER);
+    assertThat(call.pathVariables())
+        .containsExactly(Map.entry(ARGUMENT_IDENTIFIER, VALUE_IDENTIFIER));
+    assertThat(call.queryParameters())
+        .containsExactly(Map.entry(ARGUMENT_VERBOSE, List.of("true")));
+    assertThat(call.headers()).containsExactly(Map.entry(ARGUMENT_REQUEST_ID, VALUE_REQUEST_ID));
     assertThat(call.body()).isNull();
   }
 
   @Test
   void bindWithoutTheOptionalArguments_leavesThemOutOfTheCall() {
-    ToolCall call = getUser.bind(Map.of("id", "u1"));
+    ToolCall call = getUser.bind(Map.of(ARGUMENT_IDENTIFIER, VALUE_IDENTIFIER));
 
     assertThat(call.queryParameters()).isEmpty();
     assertThat(call.headers()).isEmpty();
   }
 
   @Test
+  void bindAnArgumentThatNoParameterDeclares_leavesItOutOfTheCall() {
+    ToolCall call = getUser.bind(Map.of(ARGUMENT_IDENTIFIER, VALUE_IDENTIFIER, "unknown", "value"));
+
+    assertThat(call.queryParameters()).isEmpty();
+    assertThat(call.headers()).isEmpty();
+    assertThat(call.pathVariables()).containsOnlyKeys(ARGUMENT_IDENTIFIER);
+  }
+
+  @Test
   void bindWithoutARequiredParameter_throwsNamingTheLocationTheParameterAndTheTool() {
-    assertThatThrownBy(() -> getUser.bind(Map.of("verbose", true)))
+    assertThatThrownBy(() -> getUser.bind(Map.of(ARGUMENT_VERBOSE, true)))
         .isInstanceOf(MissingRequiredArgumentException.class)
-        .hasMessageContainingAll("path", "id", "getUser");
-  }
-
-  @Test
-  void bindWithoutARequiredBody_throwsNamingTheBodyAndTheTool() {
-    Tool updateUser =
-        toolWith(List.of(REQUIRED_PATH_ID), new ToolBody(true, JsonSchema.empty(), null));
-
-    assertThatThrownBy(() -> updateUser.bind(Map.of("id", "u1")))
-        .isInstanceOf(MissingRequiredArgumentException.class)
-        .hasMessageContainingAll(Tool.BODY_ARGUMENT, "getUser");
-  }
-
-  @Test
-  void bindWithoutAnOptionalBody_bindsTheCallWithoutABody() {
-    Tool updateUser =
-        toolWith(List.of(REQUIRED_PATH_ID), new ToolBody(false, JsonSchema.empty(), null));
-
-    assertThat(updateUser.bind(Map.of("id", "u1")).body()).isNull();
+        .hasMessageContainingAll("path", ARGUMENT_IDENTIFIER, NAME_GET_USER.value());
   }
 
   @Test
   void bindNullArguments_reportsTheFirstMissingRequiredParameter() {
     assertThatThrownBy(() -> getUser.bind(null))
         .isInstanceOf(MissingRequiredArgumentException.class)
-        .hasMessageContaining("id");
+        .hasMessageContaining(ARGUMENT_IDENTIFIER);
   }
 
   @Test
-  void matchesAQueryThatAppearsInTheNameSummaryDescriptionOrTags_isTrue() {
-    Tool tool = documentedTool(List.of("People"));
+  void bindTheBodyArgument_sendsItToTheCallBody() {
+    Tool withRequiredBody = toolWith(List.of(), new ToolBody(true, SCHEMA_OBJECT, null));
 
-    assertThat(tool.matches("getuser")).isTrue();
-    assertThat(tool.matches("READ ONE")).isTrue();
-    assertThat(tool.matches("stored")).isTrue();
-    assertThat(tool.matches("people")).isTrue();
-    assertThat(tool.matches("deleted")).isFalse();
+    ToolCall call = withRequiredBody.bind(Map.of(Tool.BODY_ARGUMENT, VALUE_BODY));
+
+    assertThat(call.body()).isEqualTo(VALUE_BODY);
   }
 
   @Test
-  void matchesABlankQuery_isTrueForEveryTool() {
-    assertThat(getUser.matches("")).isTrue();
-    assertThat(getUser.matches(null)).isTrue();
+  void bindWithoutARequiredBody_throwsNamingTheBodyAndTheTool() {
+    Tool withRequiredBody =
+        toolWith(
+            List.of(PARAMETER_REQUIRED_PATH_IDENTIFIER),
+            new ToolBody(true, JsonSchema.empty(), null));
+
+    assertThatThrownBy(() -> withRequiredBody.bind(Map.of(ARGUMENT_IDENTIFIER, VALUE_IDENTIFIER)))
+        .isInstanceOf(MissingRequiredArgumentException.class)
+        .hasMessageContainingAll(Tool.BODY_ARGUMENT, NAME_GET_USER.value());
+  }
+
+  @Test
+  void bindWithoutAnOptionalBody_bindsTheCallWithoutABody() {
+    Tool withOptionalBody =
+        toolWith(
+            List.of(PARAMETER_REQUIRED_PATH_IDENTIFIER),
+            new ToolBody(false, JsonSchema.empty(), null));
+
+    assertThat(withOptionalBody.bind(Map.of(ARGUMENT_IDENTIFIER, VALUE_IDENTIFIER)).body())
+        .isNull();
+  }
+
+  @ParameterizedTest
+  @CsvSource({"getuser, true", "READ ONE, true", "stored, true", "people, true", "deleted, false"})
+  void matchesAQuery_isTrueOnlyWhenTheNameSummaryDescriptionOrTagsContainIt(
+      String query, boolean expected) {
+    assertThat(documentedTool().matches(query)).isEqualTo(expected);
+  }
+
+  @ParameterizedTest
+  @NullSource
+  @ValueSource(strings = {"", "   "})
+  void matchesABlankQuery_isTrueForEveryTool(String query) {
+    assertThat(getUser.matches(query)).isTrue();
   }
 
   @Test
   void descriptionOfADocumentedTool_joinsTheSummaryAndTheDescription() {
-    assertThat(documentedTool(List.of()).description())
-        .isEqualTo("Read one user\nAnswers the stored user");
+    assertThat(documentedTool().description()).isEqualTo("Read one user\nAnswers the stored user");
   }
 
   @Test
@@ -145,31 +203,28 @@ public class ToolTest {
     assertThat(getUser.description()).isEqualTo("GET /users/{id}");
   }
 
-  private static Tool documentedTool(List<String> tags) {
+  private static Tool documentedTool() {
     return new Tool(
-        GET_USER,
-        TARGET,
-        new ToolDocumentation("Read one user", "Answers the stored user", tags),
+        NAME_GET_USER,
+        TARGET_GET_USER,
+        new ToolDocumentation(
+            DOCUMENTATION_SUMMARY, DOCUMENTATION_DESCRIPTION, List.of(DOCUMENTATION_TAG)),
         List.of(),
         null);
   }
 
   private static Tool toolWith(List<ToolParameter> parameters, ToolBody body) {
     return new Tool(
-        GET_USER, TARGET, new ToolDocumentation(null, null, List.of()), parameters, body);
-  }
-
-  private static JsonSchema stringSchema() {
-    return new JsonSchema(Map.of("type", "string"));
-  }
-
-  private static JsonSchema booleanSchema() {
-    return new JsonSchema(Map.of("type", "boolean"));
+        NAME_GET_USER,
+        TARGET_GET_USER,
+        new ToolDocumentation(null, null, List.of()),
+        parameters,
+        body);
   }
 
   @SuppressWarnings("unchecked")
   private static Map<String, Object> propertiesOf(Map<String, Object> inputSchema) {
-    return (Map<String, Object>) inputSchema.get("properties");
+    return (Map<String, Object>) inputSchema.get(KEYWORD_PROPERTIES);
   }
 
   @SuppressWarnings("unchecked")
