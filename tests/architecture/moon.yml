@@ -1,0 +1,9 @@
+$schema: "https://moonrepo.dev/schemas/project.json"
+language: "java"
+layer: "automation"
+tags: ["java"]
+dependsOn:
+  - toolpool-core
+  - toolpool-openapi
+  - toolpool-mcp
+  - toolpool-spring-boot-starter

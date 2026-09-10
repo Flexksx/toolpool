@@ -1,0 +1,11 @@
+apply from: rootProject.file('gradle/java-conventions.gradle')
+
+description = 'Enforces the module boundaries of the toolpool library. Holds no production code.'
+
+dependencies {
+    testImplementation project(':libs:toolpool-core')
+    testImplementation project(':libs:toolpool-openapi')
+    testImplementation project(':libs:toolpool-mcp')
+    testImplementation project(':libs:toolpool-spring-boot-starter')
+    testImplementation 'com.tngtech.archunit:archunit-junit5:1.4.1'
+}

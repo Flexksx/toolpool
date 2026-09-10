@@ -16,6 +16,10 @@ sample-rest-api-client:
 toolpool-demo:
     moon run toolpool-demo:test
 
+# Run the cross-module architecture rules
+architecture:
+    moon run architecture-test:test
+
 # Run every test suite
 all:
     moon run ':test'

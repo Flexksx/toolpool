@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="ToolpoolArchitectureTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-09-10T14:30:14.610Z" hostname="ccretu-nixos" time="2.177">
+  <properties/>
+  <testcase name="theDomainDependsOnNothingButItselfAndTheJdk" classname="ToolpoolArchitectureTest" time="2.141"/>
+  <testcase name="theSharedDomainValuesDoNotKnowTheToolDomain" classname="ToolpoolArchitectureTest" time="0.002"/>
+  <testcase name="theApplicationDependsOnNothingButTheDomainAndTheJdk" classname="ToolpoolArchitectureTest" time="0.002"/>
+  <testcase name="theOpenApiAdapterKnowsTheOnionAndSwaggerOnly" classname="ToolpoolArchitectureTest" time="0.005"/>
+  <testcase name="theMcpAdapterKnowsTheOnionAndTheMcpSdkOnly" classname="ToolpoolArchitectureTest" time="0.004"/>
+  <testcase name="onlyTheSpringModuleKnowsSpring" classname="ToolpoolArchitectureTest" time="0.003"/>
+  <testcase name="onlyTheOpenApiAdapterKnowsSwagger" classname="ToolpoolArchitectureTest" time="0.006"/>
+  <testcase name="onlyTheMcpAdapterAndTheSpringModuleKnowTheMcpSdk" classname="ToolpoolArchitectureTest" time="0.002"/>
+  <testcase name="everyPackageDeclaresThatItIsNullMarked" classname="ToolpoolArchitectureTest" time="0.003"/>
+  <system-out><![CDATA[17:30:14.626 [Test worker] INFO com.tngtech.archunit.core.PluginLoader -- Detected Java version 25.0.4
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

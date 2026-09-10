@@ -1,7 +1,7 @@
 $schema: "https://moonrepo.dev/schemas/project.json"
 language: "java"
 layer: "application"
-tags: ["java", "java-app"]
+tags: ["java"]
 dependsOn:
   - toolpool-spring-boot-starter
   - sample-rest-api-client

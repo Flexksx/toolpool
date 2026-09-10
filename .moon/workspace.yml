@@ -9,3 +9,4 @@ projects:
   toolpool-spring-boot-starter: libs/toolpool-spring-boot-starter
   sample-rest-api-client: libs/sample-rest-api-client
   toolpool-demo: apps/toolpool-demo
+  architecture-test: tests/architecture

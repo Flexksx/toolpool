@@ -1,7 +1,3 @@
 apply from: rootProject.file('gradle/java-conventions.gradle')
 
 description = 'Toolpool domain and application ports. Depends on the JDK only.'
-
-dependencies {
-    testImplementation 'com.tngtech.archunit:archunit-junit5:1.4.1'
-}
