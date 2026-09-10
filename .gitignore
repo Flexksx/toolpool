@@ -16,6 +16,9 @@ libs/*/out/
 apps/*/build/
 apps/*/.gradle/
 apps/*/out/
+tests/*/build/
+tests/*/.gradle/
+tests/*/out/
 *.iml
 
 # Generated OpenAPI specs
