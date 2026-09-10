@@ -1,7 +1,7 @@
 package io.github.flexksx.toolpool.spring;
 
 import io.github.flexksx.toolpool.application.ToolCallExecutor;
-import io.github.flexksx.toolpool.domain.tool.ToolCall;
+import io.github.flexksx.toolpool.domain.tool.ToolCallRequest;
 import io.github.flexksx.toolpool.domain.tool.ToolCallResult;
 import java.time.Duration;
 import org.slf4j.Logger;
@@ -27,7 +27,7 @@ public class RestClientToolCallExecutor implements ToolCallExecutor {
   }
 
   @Override
-  public ToolCallResult execute(ToolCall call) {
+  public ToolCallResult execute(ToolCallRequest call) {
     long startedAtNanos = System.nanoTime();
     LOGGER
         .atDebug()
@@ -75,7 +75,7 @@ public class RestClientToolCallExecutor implements ToolCallExecutor {
         response.getStatusCode().isError());
   }
 
-  private static MultiValueMap<String, String> queryParametersOf(ToolCall call) {
+  private static MultiValueMap<String, String> queryParametersOf(ToolCallRequest call) {
     MultiValueMap<String, String> queryParameters = new LinkedMultiValueMap<>();
     call.queryParameters().forEach(queryParameters::addAll);
     return queryParameters;

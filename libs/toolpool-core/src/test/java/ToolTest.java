@@ -7,7 +7,7 @@ import io.github.flexksx.toolpool.domain.http.ParameterLocation;
 import io.github.flexksx.toolpool.domain.schema.JsonSchema;
 import io.github.flexksx.toolpool.domain.tool.MissingRequiredArgumentException;
 import io.github.flexksx.toolpool.domain.tool.Tool;
-import io.github.flexksx.toolpool.domain.tool.ToolCall;
+import io.github.flexksx.toolpool.domain.tool.ToolCallRequest;
 import io.github.flexksx.toolpool.domain.tool.ToolDocumentation;
 import io.github.flexksx.toolpool.domain.tool.ToolName;
 import io.github.flexksx.toolpool.domain.tool.ToolParameter;
@@ -97,9 +97,9 @@ public class ToolTest {
   }
 
   @Test
-  void bindEveryArgument_sendsEachOneToItsOwnLocation() {
-    ToolCall call =
-        getUser.bind(
+  void aRequestWithEveryArgument_sendsEachOneToItsOwnLocation() {
+    ToolCallRequest call =
+        getUser.requestFor(
             Map.of(
                 ARGUMENT_IDENTIFIER,
                 VALUE_IDENTIFIER,
@@ -119,16 +119,17 @@ public class ToolTest {
   }
 
   @Test
-  void bindWithoutTheOptionalArguments_leavesThemOutOfTheCall() {
-    ToolCall call = getUser.bind(Map.of(ARGUMENT_IDENTIFIER, VALUE_IDENTIFIER));
+  void aRequestWithoutTheOptionalArguments_leavesThemOut() {
+    ToolCallRequest call = getUser.requestFor(Map.of(ARGUMENT_IDENTIFIER, VALUE_IDENTIFIER));
 
     assertThat(call.queryParameters()).isEmpty();
     assertThat(call.headers()).isEmpty();
   }
 
   @Test
-  void bindAnArgumentThatNoParameterDeclares_leavesItOutOfTheCall() {
-    ToolCall call = getUser.bind(Map.of(ARGUMENT_IDENTIFIER, VALUE_IDENTIFIER, "unknown", "value"));
+  void aRequestWithAnArgumentThatNoParameterDeclares_leavesItOut() {
+    ToolCallRequest call =
+        getUser.requestFor(Map.of(ARGUMENT_IDENTIFIER, VALUE_IDENTIFIER, "unknown", "value"));
 
     assertThat(call.queryParameters()).isEmpty();
     assertThat(call.headers()).isEmpty();
@@ -136,44 +137,45 @@ public class ToolTest {
   }
 
   @Test
-  void bindWithoutARequiredParameter_throwsNamingTheLocationTheParameterAndTheTool() {
-    assertThatThrownBy(() -> getUser.bind(Map.of(ARGUMENT_VERBOSE, true)))
+  void aRequestWithoutARequiredParameter_throwsNamingTheLocationTheParameterAndTheTool() {
+    assertThatThrownBy(() -> getUser.requestFor(Map.of(ARGUMENT_VERBOSE, true)))
         .isInstanceOf(MissingRequiredArgumentException.class)
         .hasMessageContainingAll("path", ARGUMENT_IDENTIFIER, NAME_GET_USER.value());
   }
 
   @Test
-  void bindNullArguments_reportsTheFirstMissingRequiredParameter() {
-    assertThatThrownBy(() -> getUser.bind(null))
+  void aRequestFromNullArguments_reportsTheFirstMissingRequiredParameter() {
+    assertThatThrownBy(() -> getUser.requestFor(null))
         .isInstanceOf(MissingRequiredArgumentException.class)
         .hasMessageContaining(ARGUMENT_IDENTIFIER);
   }
 
   @Test
-  void bindTheBodyArgument_sendsItToTheCallBody() {
+  void aRequestWithTheBodyArgument_sendsItToTheRequestBody() {
     Tool withRequiredBody = toolWith(List.of(PARAMETER_REQUIRED_BODY));
 
-    ToolCall call = withRequiredBody.bind(Map.of(ToolParameter.BODY_NAME, VALUE_BODY));
+    ToolCallRequest call = withRequiredBody.requestFor(Map.of(ToolParameter.BODY_NAME, VALUE_BODY));
 
     assertThat(call.body()).isEqualTo(VALUE_BODY);
   }
 
   @Test
-  void bindWithoutARequiredBody_throwsNamingTheBodyAndTheTool() {
+  void aRequestWithoutARequiredBody_throwsNamingTheBodyAndTheTool() {
     Tool withRequiredBody =
         toolWith(List.of(PARAMETER_REQUIRED_PATH_IDENTIFIER, PARAMETER_REQUIRED_BODY));
 
-    assertThatThrownBy(() -> withRequiredBody.bind(Map.of(ARGUMENT_IDENTIFIER, VALUE_IDENTIFIER)))
+    assertThatThrownBy(
+            () -> withRequiredBody.requestFor(Map.of(ARGUMENT_IDENTIFIER, VALUE_IDENTIFIER)))
         .isInstanceOf(MissingRequiredArgumentException.class)
         .hasMessageContainingAll(ToolParameter.BODY_NAME, NAME_GET_USER.value());
   }
 
   @Test
-  void bindWithoutAnOptionalBody_bindsTheCallWithoutABody() {
+  void aRequestWithoutAnOptionalBody_carriesNoBody() {
     Tool withOptionalBody =
         toolWith(List.of(PARAMETER_REQUIRED_PATH_IDENTIFIER, PARAMETER_OPTIONAL_BODY));
 
-    assertThat(withOptionalBody.bind(Map.of(ARGUMENT_IDENTIFIER, VALUE_IDENTIFIER)).body())
+    assertThat(withOptionalBody.requestFor(Map.of(ARGUMENT_IDENTIFIER, VALUE_IDENTIFIER)).body())
         .isNull();
   }
 

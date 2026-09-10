@@ -32,6 +32,6 @@ public class Toolpool {
 
   public ToolCallResult call(ToolName name, @Nullable Map<String, Object> arguments)
       throws ToolCatalogUnavailableException, UnknownToolException {
-    return callExecutor.execute(catalogSource.catalog().find(name).bind(arguments));
+    return callExecutor.execute(catalogSource.catalog().find(name).requestFor(arguments));
   }
 }

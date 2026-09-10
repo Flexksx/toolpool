@@ -45,12 +45,9 @@ public record Tool(
     return JsonSchema.objectOf(properties, requiredProperties);
   }
 
-  public ToolCall bind(@Nullable Map<String, Object> arguments) {
+  public ToolCallRequest requestFor(@Nullable Map<String, Object> arguments) {
     Map<String, Object> given = arguments == null ? Map.of() : arguments;
-    Map<String, Object> pathVariables = new LinkedHashMap<>();
-    Map<String, List<String>> queryParameters = new LinkedHashMap<>();
-    Map<String, String> headers = new LinkedHashMap<>();
-    Object body = null;
+    ToolCallRequest.Builder request = ToolCallRequest.builder(name, target);
 
     for (ToolParameter parameter : parameters) {
       Object value = given.get(parameter.name());
@@ -61,14 +58,14 @@ public record Tool(
         continue;
       }
       switch (parameter.location()) {
-        case PATH -> pathVariables.put(parameter.name(), value);
-        case QUERY -> queryParameters.put(parameter.name(), List.of(String.valueOf(value)));
-        case HEADER -> headers.put(parameter.name(), String.valueOf(value));
-        case BODY -> body = value;
+        case PATH -> request.pathVariable(parameter.name(), value);
+        case QUERY -> request.queryParameter(parameter.name(), value);
+        case HEADER -> request.header(parameter.name(), value);
+        case BODY -> request.body(value);
       }
     }
 
-    return new ToolCall(name, target, pathVariables, queryParameters, headers, body);
+    return request.build();
   }
 
   private String searchableText() {
