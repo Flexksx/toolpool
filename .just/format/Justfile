@@ -12,13 +12,13 @@ nix:
 markdown:
     rumdl check --fix .
 
-# Format Java sources
+# Format the Java sources of every Java project
 java:
-    find libs apps -name '*.java' -not -path '*/build/*' -print0 | xargs -0 -r google-java-format --replace
+    moon run '#java:format'
 
-# Format the Java sources of the toolpool lib
+# Format the Java sources of the toolpool library modules only
 toolpool:
-    moon run toolpool:format
+    moon run '#toolpool-lib:format'
 
 # Run every formatter
 all: nix markdown java

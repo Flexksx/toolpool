@@ -4,9 +4,9 @@ set working-directory := "../.."
 default:
     just --list --justfile {{source_file()}}
 
-# Build the toolpool lib
+# Build every toolpool library module
 toolpool:
-    moon run toolpool:build
+    moon run '#toolpool-lib:build'
 
 # Build the sample-rest-api-client lib
 sample-rest-api-client:
@@ -17,4 +17,5 @@ toolpool-demo:
     moon run toolpool-demo:build
 
 # Build every unit
-all: toolpool sample-rest-api-client toolpool-demo
+all:
+    moon run ':build'

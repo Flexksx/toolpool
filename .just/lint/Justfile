@@ -8,13 +8,13 @@ default:
 markdown:
     rumdl check .
 
-# Check Java formatting without rewriting
+# Check formatting and declaration order in every Java project
 java:
-    find libs apps -name '*.java' -not -path '*/build/*' -print0 | xargs -0 -r google-java-format --dry-run --set-exit-if-changed
+    moon run '#java:lint'
 
-# Check formatting and declaration order in the toolpool lib
+# Check formatting and declaration order in the toolpool library modules only
 toolpool:
-    moon run toolpool:lint
+    moon run '#toolpool-lib:lint'
 
 # Run every linter
-all: markdown java toolpool
+all: markdown java

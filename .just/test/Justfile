@@ -4,9 +4,9 @@ set working-directory := "../.."
 default:
     just --list --justfile {{source_file()}}
 
-# Run the toolpool test suite
+# Run the test suite of every toolpool library module
 toolpool:
-    moon run toolpool:test
+    moon run '#toolpool-lib:test'
 
 # Run the sample-rest-api-client test suite
 sample-rest-api-client:
@@ -17,4 +17,5 @@ toolpool-demo:
     moon run toolpool-demo:test
 
 # Run every test suite
-all: toolpool sample-rest-api-client toolpool-demo
+all:
+    moon run ':test'

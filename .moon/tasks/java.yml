@@ -1,0 +1,51 @@
+$schema: "https://moonrepo.dev/schemas/tasks.json"
+
+# Every Gradle subproject in this workspace inherits these tasks, so a new unit
+# needs a moon.yml that carries tags and dependsOn and nothing else.
+#
+# moon merges every file under `.moon/tasks/` into every project. A `tag-*.yml`
+# or a `<language>-<layer>.yml` name does not scope the file, so one file holds
+# the whole set and `-p $projectSource` stands in for the Gradle path. That way
+# `libs/` and `apps/` units read the same task, and tags stay a way to select
+# projects on the command line, such as `moon run '#toolpool-lib:build'`.
+#
+# Root build files live outside every project directory, so no project's default
+# `**/*` inputs include them. Without these entries a change to settings.gradle,
+# the shared convention script, or the Gradle wrapper marks zero projects as
+# affected and `moon ci` runs nothing.
+implicitInputs:
+  - "/settings.gradle"
+  - "/gradlew"
+  - "/gradle/wrapper/**/*"
+  - "/gradle/java-conventions.gradle"
+  - "/config/**/*"
+
+tasks:
+  # `build` calls `assemble` and `test` calls `check`. The Gradle `build` task
+  # runs `test`, so a moon `build` and a moon `test` would run the Gradle `test`
+  # task at the same time and both write `build/test-results/test/`. `check`
+  # also carries the static analysis tasks a project registers, such as PMD, so
+  # no project has to name them.
+  build:
+    command: "./gradlew"
+    args: ["-p", "$projectSource", "assemble"]
+    deps: ["^:build"]
+    options:
+      runFromWorkspaceRoot: true
+  test:
+    command: "./gradlew"
+    args: ["-p", "$projectSource", "check"]
+    deps: ["~:build"]
+    options:
+      runFromWorkspaceRoot: true
+      runInCI: true
+  # Formatting is a source-tree action, not a Gradle action, so these tasks call
+  # the dev-shell tools directly.
+  lint:
+    script: "find src -name '*.java' -print0 | xargs -0 -r google-java-format --dry-run --set-exit-if-changed && find src -name '*.java' -print0 | xargs -0 -r checkstyle -c $workspaceRoot/config/checkstyle/checkstyle.xml"
+    options:
+      runInCI: true
+  format:
+    script: "find src -name '*.java' -print0 | xargs -0 -r google-java-format --replace"
+    options:
+      runInCI: false

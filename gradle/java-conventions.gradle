@@ -1,0 +1,43 @@
+apply plugin: 'java-library'
+apply plugin: 'pmd'
+
+group = 'io.github.flexksx'
+version = '0.1.0-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    api platform('org.springframework.boot:spring-boot-dependencies:4.1.0')
+    api platform('org.springframework.ai:spring-ai-bom:2.0.0')
+    api 'org.jspecify:jspecify'
+
+    testImplementation platform('org.junit:junit-bom:6.0.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.assertj:assertj-core'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs << '-Xlint:deprecation'
+    options.compilerArgs << '-parameters'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+pmd {
+    toolVersion = '7.26.0'
+    ruleSets = []
+    ruleSetFiles = files(rootProject.file('config/pmd/ruleset.xml'))
+    consoleOutput = true
+    ignoreFailures = false
+}

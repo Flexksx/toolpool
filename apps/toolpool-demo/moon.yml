@@ -1,22 +1,11 @@
 $schema: "https://moonrepo.dev/schemas/project.json"
-language: "unknown"
+language: "java"
 layer: "application"
+tags: ["java", "java-app"]
 dependsOn:
-  - toolpool
+  - toolpool-spring-boot-starter
   - sample-rest-api-client
 tasks:
-  build:
-    command: "./gradlew"
-    args: [":apps:toolpool-demo:assemble"]
-    deps: ["^:build"]
-    options:
-      runFromWorkspaceRoot: true
-  test:
-    command: "./gradlew"
-    args: [":apps:toolpool-demo:test"]
-    deps: ["^:build", "~:build"]
-    options:
-      runFromWorkspaceRoot: true
   run:
     command: "./gradlew"
     args: [":apps:toolpool-demo:bootRun"]

@@ -3,6 +3,9 @@ vcs:
   client: git
   defaultBranch: main
 projects:
-  toolpool: libs/toolpool
+  toolpool-core: libs/toolpool-core
+  toolpool-openapi: libs/toolpool-openapi
+  toolpool-mcp: libs/toolpool-mcp
+  toolpool-spring-boot-starter: libs/toolpool-spring-boot-starter
   sample-rest-api-client: libs/sample-rest-api-client
   toolpool-demo: apps/toolpool-demo

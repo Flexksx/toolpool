@@ -23,9 +23,8 @@ ext {
 }
 
 dependencies {
-    implementation project(':libs:toolpool')
+    implementation project(':libs:toolpool-spring-boot-starter')
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
-    implementation 'org.springframework.ai:spring-ai-starter-mcp-server-webmvc'
     testImplementation project(':libs:sample-rest-api-client')
     testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
     testImplementation 'org.assertj:assertj-core'

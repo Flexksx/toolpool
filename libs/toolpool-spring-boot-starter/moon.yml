@@ -1,0 +1,8 @@
+$schema: "https://moonrepo.dev/schemas/project.json"
+language: "java"
+layer: "library"
+tags: ["java", "toolpool-lib"]
+dependsOn:
+  - toolpool-core
+  - toolpool-openapi
+  - toolpool-mcp

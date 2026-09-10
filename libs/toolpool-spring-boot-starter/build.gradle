@@ -1,0 +1,16 @@
+apply from: rootProject.file('gradle/java-conventions.gradle')
+
+description = 'Wires Toolpool into a Spring Boot application.'
+
+dependencies {
+    api project(':libs:toolpool-core')
+    api project(':libs:toolpool-openapi')
+    api project(':libs:toolpool-mcp')
+    api 'org.springframework.ai:spring-ai-starter-mcp-server-webmvc'
+    implementation 'org.springframework.boot:spring-boot-autoconfigure'
+    implementation 'org.springframework:spring-web'
+
+    testImplementation testFixtures(project(':libs:toolpool-openapi'))
+    testImplementation 'org.springframework:spring-test'
+    testImplementation 'org.hamcrest:hamcrest'
+}

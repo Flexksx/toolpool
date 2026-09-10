@@ -1,0 +1,10 @@
+apply from: rootProject.file('gradle/java-conventions.gradle')
+
+description = 'Presents a Toolpool catalog through the framework-neutral MCP Java SDK.'
+
+dependencies {
+    api project(':libs:toolpool-core')
+    api 'io.modelcontextprotocol.sdk:mcp:2.0.0'
+
+    testImplementation testFixtures(project(':libs:toolpool-openapi'))
+}
