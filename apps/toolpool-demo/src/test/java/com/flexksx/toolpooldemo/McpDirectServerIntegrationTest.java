@@ -46,7 +46,8 @@ class McpDirectServerIntegrationTest {
 
     assertThat(tools)
         .extracting(Tool::name)
-        .containsExactlyInAnyOrder("getUser", "createUser", "updateUser");
+        .containsExactlyInAnyOrder(
+            "getUser", "listUsers", "countUsers", "createUser", "updateUser", "deleteUser");
     assertThat(tools)
         .allSatisfy(
             tool -> {

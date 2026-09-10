@@ -9,6 +9,7 @@ dependencies {
     api 'org.springframework.ai:spring-ai-starter-mcp-server-webmvc'
     implementation 'org.springframework.boot:spring-boot-autoconfigure'
     implementation 'org.springframework:spring-web'
+    implementation 'org.slf4j:slf4j-api'
 
     testImplementation testFixtures(project(':libs:toolpool-openapi'))
     testImplementation 'org.springframework:spring-test'

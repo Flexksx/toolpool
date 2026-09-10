@@ -7,3 +7,25 @@ toolpool:
   mode: metatools
   spec-location: ./openapi/sample-rest-api-client.openapi.json
   base-url: http://localhost:18080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,loggers,mappings
+  endpoint:
+    health:
+      show-details: always
+  observations:
+    key-values:
+      application: toolpool-demo
+
+logging:
+  level:
+    io.github.flexksx.toolpool: DEBUG
+    org.springframework.ai.mcp: DEBUG
+  structured:
+    format:
+      file: ecs
+  file:
+    name: logs/toolpool-demo.json

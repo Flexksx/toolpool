@@ -11,10 +11,14 @@ import io.modelcontextprotocol.spec.McpSchema.CallToolResult;
 import java.util.List;
 import java.util.Map;
 import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ai.mcp.annotation.McpTool;
 import org.springframework.ai.mcp.annotation.McpToolParam;
 
 public class McpGatewayMetatools {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(McpGatewayMetatools.class);
 
   private final Toolpool toolpool;
 
@@ -31,7 +35,14 @@ public class McpGatewayMetatools {
               required = false)
           @Nullable String query)
       throws ToolCatalogUnavailableException {
-    return toolpool.search(query).stream().map(ToolSummary::of).toList();
+    List<ToolSummary> matches = toolpool.search(query).stream().map(ToolSummary::of).toList();
+    LOGGER
+        .atInfo()
+        .setMessage("tool_search matched {} tools for query {}")
+        .addArgument(matches.size())
+        .addArgument(query)
+        .log();
+    return matches;
   }
 
   @McpTool(
@@ -40,6 +51,7 @@ public class McpGatewayMetatools {
   public ToolDefinition readTool(
       @McpToolParam(description = "The name of the tool to read") String toolName)
       throws ToolCatalogUnavailableException, UnknownToolException {
+    LOGGER.atInfo().setMessage("read_tool reads {}").addArgument(toolName).log();
     return ToolDefinition.of(toolpool.read(new ToolName(toolName)));
   }
 
@@ -49,6 +61,13 @@ public class McpGatewayMetatools {
       @McpToolParam(description = "JSON object holding one entry per tool parameter")
           Map<String, Object> arguments)
       throws ToolCatalogUnavailableException, UnknownToolException {
+    LOGGER
+        .atInfo()
+        .setMessage("tool_call calls {} with argument names {}")
+        .addArgument(toolName)
+        .addArgument(arguments.keySet())
+        .addKeyValue("tool", toolName)
+        .log();
     return McpCallToolResults.of(toolpool.call(new ToolName(toolName), arguments));
   }
 }
