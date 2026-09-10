@@ -19,6 +19,7 @@ implicitInputs:
   - "/gradle/wrapper/**/*"
   - "/gradle/java-conventions.gradle"
   - "/config/**/*"
+  - "/scripts/**/*"
 
 tasks:
   # `build` calls `assemble` and `test` calls `check`. The Gradle `build` task
@@ -40,12 +41,13 @@ tasks:
       runFromWorkspaceRoot: true
       runInCI: true
   # Formatting is a source-tree action, not a Gradle action, so these tasks call
-  # the dev-shell tools directly.
+  # the dev-shell tools directly, via the scripts in /scripts.
   lint:
-    script: "find src -name '*.java' -print0 | xargs -0 -r google-java-format --dry-run --set-exit-if-changed && find src -name '*.java' -print0 | xargs -0 -r checkstyle -c $workspaceRoot/config/checkstyle/checkstyle.xml"
+    command: "$workspaceRoot/scripts/java-lint.sh"
+    args: ["$workspaceRoot/config/checkstyle/checkstyle.xml"]
     options:
       runInCI: true
   format:
-    script: "find src -name '*.java' -print0 | xargs -0 -r google-java-format --replace"
+    command: "$workspaceRoot/scripts/java-format.sh"
     options:
       runInCI: false

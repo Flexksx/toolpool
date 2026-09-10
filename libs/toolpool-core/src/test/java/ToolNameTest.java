@@ -3,10 +3,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.github.flexksx.toolpool.domain.tool.InvalidToolNameException;
 import io.github.flexksx.toolpool.domain.tool.ToolName;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.MethodSource;
 
 public class ToolNameTest {
 
@@ -36,20 +37,24 @@ public class ToolNameTest {
     assertThat(ToolName.of("GeT_UsEr-1.2/3").value()).isEqualTo("GeT_UsEr-1.2/3");
   }
 
-  @ParameterizedTest
-  @ValueSource(strings = {"", "   "})
-  void constructABlankName_throwsInvalidToolName(String value) {
-    assertThatThrownBy(() -> new ToolName(value))
-        .isInstanceOf(InvalidToolNameException.class)
-        .hasMessageContaining("cannot be blank");
+  private static Stream<InvalidNameCase> invalidNames() {
+    return Stream.of(
+        new InvalidNameCase("", InvalidToolNameException.class, "cannot be blank"),
+        new InvalidNameCase("   ", InvalidToolNameException.class, "cannot be blank"),
+        new InvalidNameCase(
+            "has spaces", InvalidToolNameException.class, "other than a-z A-Z 0-9 _ . / -"),
+        new InvalidNameCase(
+            "has{braces}", InvalidToolNameException.class, "other than a-z A-Z 0-9 _ . / -"),
+        new InvalidNameCase(
+            "café", InvalidToolNameException.class, "other than a-z A-Z 0-9 _ . / -"));
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"has spaces", "has{braces}", "café"})
-  void constructANameWithDisallowedCharacters_throwsInvalidToolName(String value) {
-    assertThatThrownBy(() -> new ToolName(value))
-        .isInstanceOf(InvalidToolNameException.class)
-        .hasMessageContaining("other than a-z A-Z 0-9 _ . / -");
+  @MethodSource("invalidNames")
+  void constructAnInvalidName_throwsWithExpectedMessage(InvalidNameCase testCase) {
+    assertThatThrownBy(() -> new ToolName(testCase.rawName()))
+        .isInstanceOf(testCase.expectedException())
+        .hasMessageContaining(testCase.expectedMessage());
   }
 
   @Test
@@ -72,4 +77,7 @@ public class ToolNameTest {
   void constructANameOfOneCharacter_isValid() {
     assertThat(new ToolName("_").value()).isEqualTo("_");
   }
+
+  private record InvalidNameCase(
+      String rawName, Class<? extends Throwable> expectedException, String expectedMessage) {}
 }
