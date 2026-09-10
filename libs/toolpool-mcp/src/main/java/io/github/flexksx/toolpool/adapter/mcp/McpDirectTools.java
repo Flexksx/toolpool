@@ -2,11 +2,14 @@ package io.github.flexksx.toolpool.adapter.mcp;
 
 import io.github.flexksx.toolpool.application.ToolCatalogUnavailableException;
 import io.github.flexksx.toolpool.application.Toolpool;
+import io.github.flexksx.toolpool.domain.tool.DuplicateToolNameException;
 import io.github.flexksx.toolpool.domain.tool.Tool;
 import io.github.flexksx.toolpool.domain.tool.ToolName;
 import io.github.flexksx.toolpool.domain.tool.UnknownToolException;
 import io.modelcontextprotocol.server.McpServerFeatures.SyncToolSpecification;
 import io.modelcontextprotocol.spec.McpSchema;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.jspecify.annotations.Nullable;
@@ -20,12 +23,25 @@ public class McpDirectTools {
   }
 
   public List<SyncToolSpecification> toolSpecifications() throws ToolCatalogUnavailableException {
-    return toolpool.tools().stream().map(this::toolSpecification).toList();
+    Map<String, Tool> toolsByPublishedName = new LinkedHashMap<>();
+    List<SyncToolSpecification> specifications = new ArrayList<>();
+
+    for (Tool tool : toolpool.tools()) {
+      String publishedName = McpToolNames.publishedNameOf(tool.name());
+      Tool clashing = toolsByPublishedName.putIfAbsent(publishedName, tool);
+      if (clashing != null) {
+        throw new DuplicateToolNameException(
+            new ToolName(publishedName), clashing.target(), tool.target());
+      }
+      specifications.add(toolSpecification(publishedName, tool));
+    }
+
+    return List.copyOf(specifications);
   }
 
-  private SyncToolSpecification toolSpecification(Tool tool) {
+  private SyncToolSpecification toolSpecification(String publishedName, Tool tool) {
     McpSchema.Tool mcpTool =
-        McpSchema.Tool.builder(tool.name().value(), tool.inputSchema().asMap())
+        McpSchema.Tool.builder(publishedName, tool.inputSchema().asMap())
             .title(tool.documentation().summary())
             .description(tool.description())
             .build();

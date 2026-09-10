@@ -40,7 +40,7 @@ public class McpGatewayMetatools {
   public ToolDefinition readTool(
       @McpToolParam(description = "The name of the tool to read") String toolName)
       throws ToolCatalogUnavailableException, UnknownToolException {
-    return ToolDefinition.of(toolpool.read(ToolName.of(toolName)));
+    return ToolDefinition.of(toolpool.read(new ToolName(toolName)));
   }
 
   @McpTool(name = "tool_call", description = "Call a tool by name, passing its input arguments")
@@ -49,6 +49,6 @@ public class McpGatewayMetatools {
       @McpToolParam(description = "JSON object holding one entry per tool parameter")
           Map<String, Object> arguments)
       throws ToolCatalogUnavailableException, UnknownToolException {
-    return McpCallToolResults.of(toolpool.call(ToolName.of(toolName), arguments));
+    return McpCallToolResults.of(toolpool.call(new ToolName(toolName), arguments));
   }
 }

@@ -115,7 +115,7 @@ public class McpDirectToolsTest {
 
   private static Tool toolNamed(String rawName, String summary, String description) {
     return new Tool(
-        ToolName.of(rawName),
+        new ToolName(rawName),
         new HttpTarget(HttpMethod.GET, "/users"),
         new ToolDocumentation(summary, description, List.of()),
         List.of());
@@ -123,7 +123,7 @@ public class McpDirectToolsTest {
 
   private static Tool toolRequiringAPathId() {
     return new Tool(
-        ToolName.of("getUser"),
+        new ToolName("getUser"),
         new HttpTarget(HttpMethod.GET, "/users/{id}"),
         new ToolDocumentation("Get a user", null, List.of()),
         List.of(

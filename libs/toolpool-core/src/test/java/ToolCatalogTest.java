@@ -14,10 +14,10 @@ import org.junit.jupiter.api.Test;
 
 public class ToolCatalogTest {
 
-  private static final ToolName LIST_USERS = ToolName.of("listUsers");
+  private static final ToolName LIST_USERS = new ToolName("listUsers");
 
   private final Tool listUsers = toolNamed(LIST_USERS, "/users", "List every user");
-  private final Tool createUser = toolNamed(ToolName.of("createUser"), "/users", "Add a user");
+  private final Tool createUser = toolNamed(new ToolName("createUser"), "/users", "Add a user");
 
   @Test
   void findAToolByItsName_returnsThatTool() throws Exception {
@@ -31,7 +31,7 @@ public class ToolCatalogTest {
   void findAnUnknownToolName_throwsNamingTheTool() {
     ToolCatalog catalog = ToolCatalog.of(List.of(listUsers));
 
-    assertThatThrownBy(() -> catalog.find(ToolName.of("deleteUser")))
+    assertThatThrownBy(() -> catalog.find(new ToolName("deleteUser")))
         .isInstanceOf(UnknownToolException.class)
         .hasMessageContaining("deleteUser");
   }

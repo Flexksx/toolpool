@@ -42,13 +42,13 @@ public class OpenApiToolCatalogMapperTest {
     assertThat(catalog.tools())
         .extracting(tool -> tool.name().value())
         .containsExactlyInAnyOrder("getUser", "createUser", "updateUser");
-    assertThat(catalog.find(ToolName.of("updateUser")).target())
+    assertThat(catalog.find(new ToolName("updateUser")).target())
         .isEqualTo(new HttpTarget(HttpMethod.PUT, "/users/{id}"));
   }
 
   @Test
   void mapAnOperation_mapsEveryParameterToItsLocationAndRequiredFlag() throws Exception {
-    Tool getUser = map(ToolpoolFixtures.SAMPLE_SPEC).find(ToolName.of("getUser"));
+    Tool getUser = map(ToolpoolFixtures.SAMPLE_SPEC).find(new ToolName("getUser"));
 
     assertThat(getUser.parameters())
         .extracting(ToolParameter::name, ToolParameter::location, ToolParameter::required)
@@ -60,7 +60,7 @@ public class OpenApiToolCatalogMapperTest {
 
   @Test
   void mapAnOperationWithAJsonBody_carriesTheFullyResolvedBodySchema() throws Exception {
-    Tool updateUser = map(ToolpoolFixtures.SAMPLE_SPEC).find(ToolName.of("updateUser"));
+    Tool updateUser = map(ToolpoolFixtures.SAMPLE_SPEC).find(new ToolName("updateUser"));
 
     ToolParameter body = bodyOf(updateUser);
     assertThat(body).isNotNull();
@@ -82,7 +82,7 @@ public class OpenApiToolCatalogMapperTest {
 
   @Test
   void mapAnOperationWithAnUnsupportedParameterLocation_skipsThatParameterOnly() throws Exception {
-    Tool listUsers = map(COOKIE_SPEC).find(ToolName.of("listUsers"));
+    Tool listUsers = map(COOKIE_SPEC).find(new ToolName("listUsers"));
 
     assertThat(listUsers.parameters()).extracting(ToolParameter::name).containsExactly("page");
   }
@@ -103,7 +103,7 @@ public class OpenApiToolCatalogMapperTest {
 
   @Test
   void mapARequestBodyWithoutJsonContent_leavesTheToolWithoutABody() throws Exception {
-    assertThat(bodyOf(map(COOKIE_SPEC).find(ToolName.of("createUser")))).isNull();
+    assertThat(bodyOf(map(COOKIE_SPEC).find(new ToolName("createUser")))).isNull();
   }
 
   @Test

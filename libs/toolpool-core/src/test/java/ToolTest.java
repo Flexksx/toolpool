@@ -47,7 +47,7 @@ public class ToolTest {
   private static final String DOCUMENTATION_DESCRIPTION = "Answers the stored user";
   private static final String DOCUMENTATION_TAG = "People";
 
-  private static final ToolName NAME_GET_USER = ToolName.of("getUser");
+  private static final ToolName NAME_GET_USER = new ToolName("getUser");
   private static final HttpTarget TARGET_GET_USER = new HttpTarget(HttpMethod.GET, PATH_USER);
 
   private static final ToolParameter PARAMETER_REQUIRED_PATH_IDENTIFIER =

@@ -63,7 +63,7 @@ public final class OpenApiToolCatalogMapper {
     }
     return Optional.of(
         new Tool(
-            ToolName.of(operationId),
+            new ToolName(operationId),
             target,
             documentationOf(operation),
             parametersOf(target, operation)));

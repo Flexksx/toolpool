@@ -27,7 +27,7 @@ public class RestClientToolCallExecutorTest {
 
   private static final String BASE_URL = "http://api.test";
   private static final String USER_JSON = "{\"id\":\"u1\",\"name\":\"Ana\"}";
-  private static final ToolName GET_USER = ToolName.of("getUser");
+  private static final ToolName GET_USER = new ToolName("getUser");
 
   private MockRestServiceServer apiServer;
   private RestClientToolCallExecutor executor;
@@ -73,7 +73,7 @@ public class RestClientToolCallExecutorTest {
     ToolCallResult result =
         executor.execute(
             new ToolCall(
-                ToolName.of("updateUser"),
+                new ToolName("updateUser"),
                 new HttpTarget(HttpMethod.PUT, "/users/{id}"),
                 Map.of("id", "u1"),
                 Map.of(),
