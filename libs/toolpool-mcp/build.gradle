@@ -7,4 +7,5 @@ dependencies {
     api 'io.modelcontextprotocol.sdk:mcp:2.0.0'
 
     testImplementation testFixtures(project(':libs:toolpool-openapi'))
+    testImplementation 'com.tngtech.archunit:archunit-junit5:1.4.1'
 }

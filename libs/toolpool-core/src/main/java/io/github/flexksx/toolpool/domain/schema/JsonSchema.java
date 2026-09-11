@@ -12,6 +12,7 @@ public record JsonSchema(Map<String, Object> asMap) {
   private static final String OBJECT_TYPE = "object";
   private static final String PROPERTIES_KEYWORD = "properties";
   private static final String REQUIRED_KEYWORD = "required";
+  private static final String STRING_TYPE = "string";
   private static final String TYPE_KEYWORD = "type";
 
   public JsonSchema {
@@ -20,6 +21,14 @@ public record JsonSchema(Map<String, Object> asMap) {
 
   public static JsonSchema empty() {
     return new JsonSchema(Map.of());
+  }
+
+  public static JsonSchema stringType() {
+    return new JsonSchema(Map.of(TYPE_KEYWORD, STRING_TYPE));
+  }
+
+  public static JsonSchema objectType() {
+    return new JsonSchema(Map.of(TYPE_KEYWORD, OBJECT_TYPE));
   }
 
   public static JsonSchema objectOf(Map<String, JsonSchema> properties, List<String> required) {

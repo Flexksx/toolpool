@@ -1,4 +1,6 @@
 $schema: "https://moonrepo.dev/schemas/project.json"
+project:
+  description: "Presents a Toolpool catalog as MCP tools. Holds the direct and the metatool translation modes."
 language: "java"
 layer: "library"
 tags: ["java", "toolpool-lib"]

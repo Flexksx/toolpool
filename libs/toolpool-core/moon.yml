@@ -1,4 +1,6 @@
 $schema: "https://moonrepo.dev/schemas/project.json"
+project:
+  description: "Holds the Toolpool domain model and the application ports. Depends on the JDK and jspecify only."
 language: "java"
 layer: "library"
 tags: ["java", "toolpool-lib"]

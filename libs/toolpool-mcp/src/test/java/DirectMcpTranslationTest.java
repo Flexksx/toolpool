@@ -1,6 +1,6 @@
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.github.flexksx.toolpool.adapter.mcp.McpDirectTools;
+import io.github.flexksx.toolpool.adapter.mcp.translation.DirectMcpTranslation;
 import io.github.flexksx.toolpool.application.ToolCatalogSource;
 import io.github.flexksx.toolpool.application.Toolpool;
 import io.github.flexksx.toolpool.domain.http.HttpMethod;
@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
-public class McpDirectToolsTest {
+public class DirectMcpTranslationTest {
 
   private static final ToolCallResult OK = new ToolCallResult("{}", false);
 
@@ -47,37 +47,38 @@ public class McpDirectToolsTest {
 
   @Test
   void toolSpecifications_exposesTheSanitizedToolName() throws Exception {
-    McpDirectTools directTools = directToolsOver(toolNamed("get /users/{id}", null, null));
+    DirectMcpTranslation directMcpTranslation =
+        directToolsOver(toolNamed("get /users/{id}", null, null));
 
-    assertThat(directTools.toolSpecifications())
+    assertThat(directMcpTranslation.toolSpecifications())
         .extracting(specification -> specification.tool().name())
         .containsExactly("get_/users/_id_");
   }
 
   @Test
   void toolSpecifications_fallsBackToTheMethodAndThePathAsDescription() throws Exception {
-    McpDirectTools directTools = directToolsOver(toolNamed("listUsers", null, null));
+    DirectMcpTranslation directMcpTranslation = directToolsOver(toolNamed("listUsers", null, null));
 
-    assertThat(directTools.toolSpecifications())
+    assertThat(directMcpTranslation.toolSpecifications())
         .extracting(specification -> specification.tool().description())
         .containsExactly("GET /users");
   }
 
   @Test
   void toolSpecifications_carriesTheSummaryAsTheMcpTitle() throws Exception {
-    McpDirectTools directTools =
+    DirectMcpTranslation directMcpTranslation =
         directToolsOver(toolNamed("listUsers", "List users", "Answers every stored user"));
 
-    assertThat(directTools.toolSpecifications())
+    assertThat(directMcpTranslation.toolSpecifications())
         .extracting(specification -> specification.tool().title())
         .containsExactly("List users");
   }
 
   @Test
   void callAToolWithoutARequiredArgument_answersAnErrorResultInsteadOfThrowing() throws Exception {
-    McpDirectTools directTools = directToolsOver(toolRequiringAPathId());
+    DirectMcpTranslation directMcpTranslation = directToolsOver(toolRequiringAPathId());
 
-    McpSchema.CallToolResult result = callFirstTool(directTools, Map.of());
+    McpSchema.CallToolResult result = callFirstTool(directMcpTranslation, Map.of());
 
     assertThat(result.isError()).isTrue();
     assertThat(textOf(result)).contains("id");
@@ -86,28 +87,28 @@ public class McpDirectToolsTest {
 
   @Test
   void callAToolWithItsArguments_passesTheBoundCallToTheExecutor() throws Exception {
-    McpDirectTools directTools = directToolsOver(toolRequiringAPathId());
+    DirectMcpTranslation directMcpTranslation = directToolsOver(toolRequiringAPathId());
 
-    McpSchema.CallToolResult result = callFirstTool(directTools, Map.of("id", "u1"));
+    McpSchema.CallToolResult result = callFirstTool(directMcpTranslation, Map.of("id", "u1"));
 
     assertThat(result.isError()).isFalse();
     assertThat(callExecutor.onlyCall().pathVariables()).containsExactly(Map.entry("id", "u1"));
   }
 
-  private McpDirectTools directToolsFor(String specLocation) {
-    return new McpDirectTools(
+  private DirectMcpTranslation directToolsFor(String specLocation) {
+    return new DirectMcpTranslation(
         new Toolpool(ToolpoolFixtures.catalogSourceFor(specLocation), callExecutor));
   }
 
-  private McpDirectTools directToolsOver(Tool tool) {
+  private DirectMcpTranslation directToolsOver(Tool tool) {
     ToolCatalog catalog = ToolCatalog.of(List.of(tool));
     ToolCatalogSource source = () -> catalog;
-    return new McpDirectTools(new Toolpool(source, callExecutor));
+    return new DirectMcpTranslation(new Toolpool(source, callExecutor));
   }
 
   private static McpSchema.CallToolResult callFirstTool(
-      McpDirectTools directTools, Map<String, Object> arguments) throws Exception {
-    SyncToolSpecification specification = directTools.toolSpecifications().getFirst();
+      DirectMcpTranslation directMcpTranslation, Map<String, Object> arguments) throws Exception {
+    SyncToolSpecification specification = directMcpTranslation.toolSpecifications().getFirst();
     return specification
         .callHandler()
         .apply(null, new McpSchema.CallToolRequest(specification.tool().name(), arguments, null));

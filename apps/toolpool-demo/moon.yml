@@ -1,4 +1,6 @@
 $schema: "https://moonrepo.dev/schemas/project.json"
+project:
+  description: "Runs Toolpool as an MCP server in front of the sample REST service."
 language: "java"
 layer: "application"
 tags: ["java"]

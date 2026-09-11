@@ -1,4 +1,6 @@
 $schema: "https://moonrepo.dev/schemas/project.json"
+project:
+  description: "Reads an OpenAPI spec and maps it to a Toolpool catalog. Keeps Swagger behind this module."
 language: "java"
 layer: "library"
 tags: ["java", "toolpool-lib"]

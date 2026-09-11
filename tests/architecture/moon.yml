@@ -1,4 +1,6 @@
 $schema: "https://moonrepo.dev/schemas/project.json"
+project:
+  description: "Enforces the module boundaries of the toolpool library with ArchUnit. Holds no production code."
 language: "java"
 layer: "automation"
 tags: ["java"]

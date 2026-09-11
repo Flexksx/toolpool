@@ -1,4 +1,6 @@
 $schema: "https://moonrepo.dev/schemas/project.json"
+project:
+  description: "Wires Toolpool into a Spring Boot application. The only module that knows Spring."
 language: "java"
 layer: "library"
 tags: ["java", "toolpool-lib"]

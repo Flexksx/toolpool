@@ -1,6 +1,6 @@
 package io.github.flexksx.toolpool.spring;
 
-import io.github.flexksx.toolpool.adapter.mcp.McpDirectTools;
+import io.github.flexksx.toolpool.adapter.mcp.translation.McpTranslationMode;
 import io.github.flexksx.toolpool.adapter.openapi.OpenApiToolCatalogSource;
 import io.github.flexksx.toolpool.application.ToolCallExecutor;
 import io.github.flexksx.toolpool.application.ToolCatalogSource;
@@ -14,7 +14,6 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestClient;
 
@@ -22,9 +21,6 @@ import org.springframework.web.client.RestClient;
 public class ToolpoolAutoConfiguration {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ToolpoolAutoConfiguration.class);
-  private static final String MODE_PROPERTY = "toolpool.mode";
-  private static final String MODE_METATOOLS = "metatools";
-  private static final String MODE_DIRECT = "direct";
   private static final String OBSERVED_CLIENT = "context-managed";
   private static final String UNMANAGED_CLIENT = "standalone";
 
@@ -62,25 +58,14 @@ public class ToolpoolAutoConfiguration {
   }
 
   @Bean
-  @ConditionalOnProperty(name = MODE_PROPERTY, havingValue = MODE_METATOOLS, matchIfMissing = true)
-  McpGatewayMetatools mcpGatewayMetatools(Toolpool toolpool) {
-    LOGGER
-        .atInfo()
-        .setMessage("Toolpool runs in {} mode and exposes tool_search, read_tool and tool_call")
-        .addArgument(MODE_METATOOLS)
-        .log();
-    return new McpGatewayMetatools(toolpool);
-  }
-
-  @Bean
-  @ConditionalOnProperty(name = MODE_PROPERTY, havingValue = MODE_DIRECT)
-  List<SyncToolSpecification> directToolSpecifications(Toolpool toolpool)
+  List<SyncToolSpecification> toolpoolToolSpecifications(
+      Toolpool toolpool, @Value("${toolpool.mode:METATOOLS}") McpTranslationMode mode)
       throws ToolCatalogUnavailableException {
-    List<SyncToolSpecification> specifications = new McpDirectTools(toolpool).toolSpecifications();
+    List<SyncToolSpecification> specifications = mode.translationOf(toolpool).toolSpecifications();
     LOGGER
         .atInfo()
         .setMessage("Toolpool runs in {} mode and exposes {} MCP tools")
-        .addArgument(MODE_DIRECT)
+        .addArgument(mode)
         .addArgument(specifications.size())
         .log();
     return specifications;

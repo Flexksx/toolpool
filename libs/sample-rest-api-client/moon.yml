@@ -1,4 +1,6 @@
 $schema: "https://moonrepo.dev/schemas/project.json"
+project:
+  description: "A sample REST service. Supplies the OpenAPI spec that the demo app reads."
 language: "java"
 layer: "library"
 tags: ["java"]

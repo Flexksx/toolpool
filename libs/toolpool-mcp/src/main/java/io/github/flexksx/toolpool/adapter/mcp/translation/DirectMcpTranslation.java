@@ -1,5 +1,7 @@
-package io.github.flexksx.toolpool.adapter.mcp;
+package io.github.flexksx.toolpool.adapter.mcp.translation;
 
+import io.github.flexksx.toolpool.adapter.mcp.McpToolCallMapper;
+import io.github.flexksx.toolpool.adapter.mcp.McpToolNames;
 import io.github.flexksx.toolpool.application.ToolCatalogUnavailableException;
 import io.github.flexksx.toolpool.application.Toolpool;
 import io.github.flexksx.toolpool.domain.tool.DuplicateToolNameException;
@@ -14,14 +16,16 @@ import java.util.List;
 import java.util.Map;
 import org.jspecify.annotations.Nullable;
 
-public class McpDirectTools {
+public final class DirectMcpTranslation implements McpTranslation {
 
+  private final McpToolCallMapper callMapper = new McpToolCallMapper();
   private final Toolpool toolpool;
 
-  public McpDirectTools(Toolpool toolpool) {
+  public DirectMcpTranslation(Toolpool toolpool) {
     this.toolpool = toolpool;
   }
 
+  @Override
   public List<SyncToolSpecification> toolSpecifications() throws ToolCatalogUnavailableException {
     Map<String, Tool> toolsByPublishedName = new LinkedHashMap<>();
     List<SyncToolSpecification> specifications = new ArrayList<>();
@@ -47,15 +51,15 @@ public class McpDirectTools {
             .build();
     return SyncToolSpecification.builder()
         .tool(mcpTool)
-        .callHandler((exchange, request) -> call(tool.name(), request.arguments()))
+        .callHandler((_, request) -> call(tool.name(), request.arguments()))
         .build();
   }
 
   private McpSchema.CallToolResult call(ToolName name, @Nullable Map<String, Object> arguments) {
     try {
-      return McpCallToolResults.of(toolpool.call(name, arguments));
+      return callMapper.from(toolpool.call(name, arguments));
     } catch (ToolCatalogUnavailableException | UnknownToolException | RuntimeException failure) {
-      return McpCallToolResults.errorOf(failure);
+      return callMapper.fromFailure(failure);
     }
   }
 }
