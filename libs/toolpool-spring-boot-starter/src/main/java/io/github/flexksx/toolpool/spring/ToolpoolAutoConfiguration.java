@@ -1,6 +1,6 @@
 package io.github.flexksx.toolpool.spring;
 
-import io.github.flexksx.toolpool.adapter.mcp.translation.McpTranslationMode;
+import io.github.flexksx.toolpool.adapter.mcp.McpTranslationMode;
 import io.github.flexksx.toolpool.adapter.openapi.OpenApiToolCatalogSource;
 import io.github.flexksx.toolpool.application.ToolCallExecutor;
 import io.github.flexksx.toolpool.application.ToolCatalogSource;

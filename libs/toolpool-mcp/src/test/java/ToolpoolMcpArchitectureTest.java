@@ -27,8 +27,6 @@ class ToolpoolMcpArchitectureTest {
       noClasses()
           .that()
           .resideInAPackage(TRANSLATION)
-          .and()
-          .doNotHaveSimpleName("McpTranslationMode")
           .should()
           .dependOnClassesThat()
           .resideInAPackage(METATOOL);

@@ -1,6 +1,9 @@
-package io.github.flexksx.toolpool.adapter.mcp.translation;
+package io.github.flexksx.toolpool.adapter.mcp;
 
 import io.github.flexksx.toolpool.adapter.mcp.metatool.McpMetatool;
+import io.github.flexksx.toolpool.adapter.mcp.translation.DirectMcpTranslation;
+import io.github.flexksx.toolpool.adapter.mcp.translation.McpTranslation;
+import io.github.flexksx.toolpool.adapter.mcp.translation.MetatoolMcpTranslation;
 import io.github.flexksx.toolpool.application.Toolpool;
 import java.util.function.Function;
 
