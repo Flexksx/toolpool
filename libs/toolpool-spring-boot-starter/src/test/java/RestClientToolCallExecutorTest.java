@@ -13,6 +13,7 @@ import io.github.flexksx.toolpool.domain.tool.ToolCallResult;
 import io.github.flexksx.toolpool.domain.tool.ToolName;
 import io.github.flexksx.toolpool.spring.RestClientToolCallExecutor;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,11 +49,13 @@ public class RestClientToolCallExecutorTest {
 
     ToolCallResult result =
         executor.execute(
-            ToolCallRequest.builder(GET_USER, GET_USER_TARGET)
-                .pathVariable("id", "u1")
-                .queryParameter("verbose", true)
-                .header("X-Request-Id", "r1")
-                .build());
+            new ToolCallRequest(
+                GET_USER,
+                GET_USER_TARGET,
+                Map.of("id", "u1"),
+                Map.of("verbose", List.of("true")),
+                Map.of("X-Request-Id", "r1"),
+                null));
 
     apiServer.verify();
     assertThat(result).isEqualTo(new ToolCallResult(USER_JSON, false));
@@ -81,11 +84,13 @@ public class RestClientToolCallExecutorTest {
 
     ToolCallResult result =
         executor.execute(
-            ToolCallRequest.builder(
-                    new ToolName("updateUser"), new HttpTarget(HttpMethod.PUT, "/users/{id}"))
-                .pathVariable("id", "u1")
-                .body(orderedUserBody())
-                .build());
+            new ToolCallRequest(
+                new ToolName("updateUser"),
+                new HttpTarget(HttpMethod.PUT, "/users/{id}"),
+                Map.of("id", "u1"),
+                Map.of(),
+                Map.of(),
+                orderedUserBody()));
 
     apiServer.verify();
     assertThat(result.failed()).isFalse();
@@ -125,7 +130,8 @@ public class RestClientToolCallExecutorTest {
   }
 
   private static ToolCallRequest getUserCall(String id) {
-    return ToolCallRequest.builder(GET_USER, GET_USER_TARGET).pathVariable("id", id).build();
+    return new ToolCallRequest(
+        GET_USER, GET_USER_TARGET, Map.of("id", id), Map.of(), Map.of(), null);
   }
 
   private static Map<String, Object> orderedUserBody() {

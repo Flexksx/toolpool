@@ -50,7 +50,10 @@ public record Tool(
 
   public ToolCallRequest requestFor(@Nullable Map<String, Object> arguments) {
     Map<String, Object> given = arguments == null ? Map.of() : arguments;
-    ToolCallRequest.Builder request = ToolCallRequest.builder(name, target);
+    Map<String, Object> pathVariables = new LinkedHashMap<>();
+    Map<String, List<String>> queryParameters = new LinkedHashMap<>();
+    Map<String, String> headers = new LinkedHashMap<>();
+    Object body = null;
 
     for (ToolParameter parameter : parameters) {
       Object value = given.get(parameter.name());
@@ -61,14 +64,14 @@ public record Tool(
         continue;
       }
       switch (parameter.location()) {
-        case PATH -> request.pathVariable(parameter.name(), value);
-        case QUERY -> request.queryParameter(parameter.name(), value);
-        case HEADER -> request.header(parameter.name(), value);
-        case BODY -> request.body(value);
+        case PATH -> pathVariables.put(parameter.name(), value);
+        case QUERY -> queryParameters.put(parameter.name(), List.of(String.valueOf(value)));
+        case HEADER -> headers.put(parameter.name(), String.valueOf(value));
+        case BODY -> body = value;
       }
     }
 
-    return request.build();
+    return new ToolCallRequest(name, target, pathVariables, queryParameters, headers, body);
   }
 
   private static void requireDistinctNames(ToolName name, List<ToolParameter> parameters) {
