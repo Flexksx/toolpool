@@ -1,7 +1,6 @@
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import io.github.flexksx.toolpool.domain.http.ParameterLocation;
 import io.github.flexksx.toolpool.domain.schema.JsonSchema;
 import io.github.flexksx.toolpool.domain.tool.ToolDocumentation;
 import io.github.flexksx.toolpool.domain.tool.ToolParameter;
@@ -15,15 +14,13 @@ public class ToolTest {
   private static final String DOCUMENTATION_DESCRIPTION = "Answers the stored user";
 
   private static final ToolParameter PARAMETER_PATH_IDENTIFIER =
-      new ToolParameter(
-          ARGUMENT_IDENTIFIER, ParameterLocation.PATH, true, JsonSchema.stringType(), null);
+      ToolParameter.inPath(ARGUMENT_IDENTIFIER, JsonSchema.stringType()).withRequired(true);
   private static final ToolParameter PARAMETER_QUERY_IDENTIFIER =
-      new ToolParameter(
-          ARGUMENT_IDENTIFIER, ParameterLocation.QUERY, false, JsonSchema.stringType(), null);
+      ToolParameter.inQuery(ARGUMENT_IDENTIFIER, JsonSchema.stringType());
   private static final ToolParameter PARAMETER_REQUIRED_BODY =
-      ToolParameter.body(true, JsonSchema.objectType(), null);
+      ToolParameter.inBody(JsonSchema.objectType()).withRequired(true);
   private static final ToolParameter PARAMETER_OPTIONAL_BODY =
-      ToolParameter.body(false, JsonSchema.empty(), null);
+      ToolParameter.inBody(JsonSchema.empty());
 
   @Test
   void constructWithTwoParametersOfTheSameName_throwsNamingTheParameter() {

@@ -23,9 +23,28 @@ public record ToolParameter(
     }
   }
 
-  public static ToolParameter body(
-      boolean required, JsonSchema schema, @Nullable String description) {
-    return new ToolParameter(BODY_NAME, ParameterLocation.BODY, required, schema, description);
+  public static ToolParameter inPath(String name, JsonSchema schema) {
+    return new ToolParameter(name, ParameterLocation.PATH, false, schema, null);
+  }
+
+  public static ToolParameter inQuery(String name, JsonSchema schema) {
+    return new ToolParameter(name, ParameterLocation.QUERY, false, schema, null);
+  }
+
+  public static ToolParameter inHeader(String name, JsonSchema schema) {
+    return new ToolParameter(name, ParameterLocation.HEADER, false, schema, null);
+  }
+
+  public static ToolParameter inBody(JsonSchema schema) {
+    return new ToolParameter(BODY_NAME, ParameterLocation.BODY, false, schema, null);
+  }
+
+  public ToolParameter withRequired(boolean value) {
+    return new ToolParameter(name, location, value, schema, description);
+  }
+
+  public ToolParameter withDescription(@Nullable String value) {
+    return new ToolParameter(name, location, required, schema, value);
   }
 
   public JsonSchema describedSchema() {

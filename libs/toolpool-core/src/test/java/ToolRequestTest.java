@@ -1,7 +1,6 @@
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import io.github.flexksx.toolpool.domain.http.ParameterLocation;
 import io.github.flexksx.toolpool.domain.schema.JsonSchema;
 import io.github.flexksx.toolpool.domain.tool.MissingRequiredArgumentException;
 import io.github.flexksx.toolpool.domain.tool.Tool;
@@ -24,17 +23,15 @@ public class ToolRequestTest {
   private static final Object VALUE_BODY = Map.of("name", "Ada");
 
   private static final ToolParameter PARAMETER_REQUIRED_PATH_IDENTIFIER =
-      new ToolParameter(
-          ARGUMENT_IDENTIFIER, ParameterLocation.PATH, true, JsonSchema.stringType(), null);
+      ToolParameter.inPath(ARGUMENT_IDENTIFIER, JsonSchema.stringType()).withRequired(true);
   private static final ToolParameter PARAMETER_OPTIONAL_QUERY_VERBOSE =
-      new ToolParameter(ARGUMENT_VERBOSE, ParameterLocation.QUERY, false, JsonSchema.empty(), null);
+      ToolParameter.inQuery(ARGUMENT_VERBOSE, JsonSchema.empty());
   private static final ToolParameter PARAMETER_OPTIONAL_HEADER_REQUEST_ID =
-      new ToolParameter(
-          ARGUMENT_REQUEST_ID, ParameterLocation.HEADER, false, JsonSchema.stringType(), null);
+      ToolParameter.inHeader(ARGUMENT_REQUEST_ID, JsonSchema.stringType());
   private static final ToolParameter PARAMETER_REQUIRED_BODY =
-      ToolParameter.body(true, JsonSchema.objectType(), null);
+      ToolParameter.inBody(JsonSchema.objectType()).withRequired(true);
   private static final ToolParameter PARAMETER_OPTIONAL_BODY =
-      ToolParameter.body(false, JsonSchema.empty(), null);
+      ToolParameter.inBody(JsonSchema.empty());
 
   private final Tool getUser =
       ToolExamples.toolWith(

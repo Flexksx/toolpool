@@ -145,10 +145,9 @@ public final class OpenApiToolCatalogMapper {
       return Optional.empty();
     }
     return Optional.of(
-        ToolParameter.body(
-            Boolean.TRUE.equals(requestBody.getRequired()),
-            toJsonSchema(jsonContent.getSchema()),
-            requestBody.getDescription()));
+        ToolParameter.inBody(toJsonSchema(jsonContent.getSchema()))
+            .withRequired(Boolean.TRUE.equals(requestBody.getRequired()))
+            .withDescription(requestBody.getDescription()));
   }
 
   private static JsonSchema toJsonSchema(@Nullable Schema<?> schema) {

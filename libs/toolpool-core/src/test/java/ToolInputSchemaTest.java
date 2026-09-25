@@ -6,7 +6,6 @@ import static io.github.flexksx.toolpool.domain.schema.JsonSchema.REQUIRED_KEYWO
 import static io.github.flexksx.toolpool.domain.schema.JsonSchema.TYPE_KEYWORD;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.github.flexksx.toolpool.domain.http.ParameterLocation;
 import io.github.flexksx.toolpool.domain.schema.JsonSchema;
 import io.github.flexksx.toolpool.domain.tool.Tool;
 import io.github.flexksx.toolpool.domain.tool.ToolParameter;
@@ -22,24 +21,15 @@ public class ToolInputSchemaTest {
   private static final String DESCRIPTION_IDENTIFIER = "The identifier of the user";
 
   private static final ToolParameter PARAMETER_REQUIRED_PATH_IDENTIFIER =
-      new ToolParameter(
-          ARGUMENT_IDENTIFIER,
-          ParameterLocation.PATH,
-          true,
-          JsonSchema.stringType(),
-          DESCRIPTION_IDENTIFIER);
+      ToolParameter.inPath(ARGUMENT_IDENTIFIER, JsonSchema.stringType())
+          .withRequired(true)
+          .withDescription(DESCRIPTION_IDENTIFIER);
   private static final ToolParameter PARAMETER_OPTIONAL_QUERY_VERBOSE =
-      new ToolParameter(
-          ARGUMENT_VERBOSE,
-          ParameterLocation.QUERY,
-          false,
-          new JsonSchema(Map.of(TYPE_KEYWORD, BOOLEAN_TYPE)),
-          null);
+      ToolParameter.inQuery(ARGUMENT_VERBOSE, new JsonSchema(Map.of(TYPE_KEYWORD, BOOLEAN_TYPE)));
   private static final ToolParameter PARAMETER_OPTIONAL_HEADER_REQUEST_ID =
-      new ToolParameter(
-          ARGUMENT_REQUEST_ID, ParameterLocation.HEADER, false, JsonSchema.stringType(), null);
+      ToolParameter.inHeader(ARGUMENT_REQUEST_ID, JsonSchema.stringType());
   private static final ToolParameter PARAMETER_REQUIRED_BODY =
-      ToolParameter.body(true, JsonSchema.objectType(), null);
+      ToolParameter.inBody(JsonSchema.objectType()).withRequired(true);
 
   @Test
   void inputSchemaOfAToolWithParameters_describesEachOneAndRequiresOnlyTheRequiredOnes() {

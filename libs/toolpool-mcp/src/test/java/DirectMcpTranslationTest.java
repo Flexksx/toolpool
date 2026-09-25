@@ -7,7 +7,6 @@ import io.github.flexksx.toolpool.application.ToolCatalogSource;
 import io.github.flexksx.toolpool.application.Toolpool;
 import io.github.flexksx.toolpool.domain.http.HttpMethod;
 import io.github.flexksx.toolpool.domain.http.HttpTarget;
-import io.github.flexksx.toolpool.domain.http.ParameterLocation;
 import io.github.flexksx.toolpool.domain.schema.JsonSchema;
 import io.github.flexksx.toolpool.domain.tool.Tool;
 import io.github.flexksx.toolpool.domain.tool.ToolCallResult;
@@ -145,12 +144,8 @@ public class DirectMcpTranslationTest {
         new HttpTarget(HttpMethod.GET, "/users/{id}"),
         new ToolDocumentation("Get a user", null, List.of()),
         List.of(
-            new ToolParameter(
-                "id",
-                ParameterLocation.PATH,
-                true,
-                new JsonSchema(Map.of("type", "string")),
-                null)));
+            ToolParameter.inPath("id", new JsonSchema(Map.of("type", "string")))
+                .withRequired(true)));
   }
 
   private static String textOf(McpSchema.CallToolResult result) {
