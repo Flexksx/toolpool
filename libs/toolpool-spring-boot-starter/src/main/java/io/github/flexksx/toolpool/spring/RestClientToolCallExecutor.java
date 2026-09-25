@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 
 public class RestClientToolCallExecutor implements ToolCallExecutor {
 
@@ -56,8 +57,13 @@ public class RestClientToolCallExecutor implements ToolCallExecutor {
       request = request.contentType(MediaType.APPLICATION_JSON).body(body);
     }
 
-    ResponseEntity<String> response =
-        request.retrieve().onStatus(status -> true, (req, res) -> {}).toEntity(String.class);
+    ResponseEntity<String> response;
+    try {
+      response =
+          request.retrieve().onStatus(status -> true, (req, res) -> {}).toEntity(String.class);
+    } catch (RestClientException failure) {
+      return new ToolCallResult(failureMessageOf(failure), true);
+    }
 
     LOGGER
         .atInfo()
@@ -73,6 +79,10 @@ public class RestClientToolCallExecutor implements ToolCallExecutor {
     return new ToolCallResult(
         response.getBody() == null ? EMPTY_RESPONSE_BODY : response.getBody(),
         response.getStatusCode().isError());
+  }
+
+  private static String failureMessageOf(RestClientException failure) {
+    return failure.getMessage() == null ? failure.toString() : failure.getMessage();
   }
 
   private static MultiValueMap<String, String> queryParametersOf(ToolCallRequest call) {

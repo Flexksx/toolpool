@@ -43,7 +43,7 @@ public class JsonSchemaTest {
   }
 
   @Test
-  void aSchemaBuiltFromAMutableMap_ignoresLaterChangesToThatMap() {
+  void constructFromAMutableMap_ignoresLaterChangesToThatMap() {
     Map<String, Object> source = new LinkedHashMap<>(Map.of("type", "string"));
     JsonSchema schema = new JsonSchema(source);
 

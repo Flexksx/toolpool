@@ -97,7 +97,7 @@ public class ToolTest {
   }
 
   @Test
-  void aRequestWithEveryArgument_sendsEachOneToItsOwnLocation() {
+  void requestForEveryArgument_sendsEachOneToItsOwnLocation() {
     ToolCallRequest call =
         getUser.requestFor(
             Map.of(
@@ -119,7 +119,7 @@ public class ToolTest {
   }
 
   @Test
-  void aRequestWithoutTheOptionalArguments_leavesThemOut() {
+  void requestForNoOptionalArguments_leavesThemOut() {
     ToolCallRequest call = getUser.requestFor(Map.of(ARGUMENT_IDENTIFIER, VALUE_IDENTIFIER));
 
     assertThat(call.queryParameters()).isEmpty();
@@ -127,7 +127,7 @@ public class ToolTest {
   }
 
   @Test
-  void aRequestWithAnArgumentThatNoParameterDeclares_leavesItOut() {
+  void requestForAnArgumentThatNoParameterDeclares_leavesItOut() {
     ToolCallRequest call =
         getUser.requestFor(Map.of(ARGUMENT_IDENTIFIER, VALUE_IDENTIFIER, "unknown", "value"));
 
@@ -137,21 +137,21 @@ public class ToolTest {
   }
 
   @Test
-  void aRequestWithoutARequiredParameter_throwsNamingTheLocationTheParameterAndTheTool() {
+  void requestForMissingRequiredParameter_throwsNamingTheLocationTheParameterAndTheTool() {
     assertThatThrownBy(() -> getUser.requestFor(Map.of(ARGUMENT_VERBOSE, true)))
         .isInstanceOf(MissingRequiredArgumentException.class)
         .hasMessageContainingAll("path", ARGUMENT_IDENTIFIER, NAME_GET_USER.value());
   }
 
   @Test
-  void aRequestFromNullArguments_reportsTheFirstMissingRequiredParameter() {
+  void requestForNullArguments_reportsTheFirstMissingRequiredParameter() {
     assertThatThrownBy(() -> getUser.requestFor(null))
         .isInstanceOf(MissingRequiredArgumentException.class)
         .hasMessageContaining(ARGUMENT_IDENTIFIER);
   }
 
   @Test
-  void aRequestWithTheBodyArgument_sendsItToTheRequestBody() {
+  void requestForTheBodyArgument_sendsItToTheRequestBody() {
     Tool withRequiredBody = toolWith(List.of(PARAMETER_REQUIRED_BODY));
 
     ToolCallRequest call = withRequiredBody.requestFor(Map.of(ToolParameter.BODY_NAME, VALUE_BODY));
@@ -160,7 +160,7 @@ public class ToolTest {
   }
 
   @Test
-  void aRequestWithoutARequiredBody_throwsNamingTheBodyAndTheTool() {
+  void requestForMissingRequiredBody_throwsNamingTheBodyAndTheTool() {
     Tool withRequiredBody =
         toolWith(List.of(PARAMETER_REQUIRED_PATH_IDENTIFIER, PARAMETER_REQUIRED_BODY));
 
@@ -171,7 +171,7 @@ public class ToolTest {
   }
 
   @Test
-  void aRequestWithoutAnOptionalBody_carriesNoBody() {
+  void requestForMissingOptionalBody_carriesNoBody() {
     Tool withOptionalBody =
         toolWith(List.of(PARAMETER_REQUIRED_PATH_IDENTIFIER, PARAMETER_OPTIONAL_BODY));
 
@@ -201,6 +201,36 @@ public class ToolTest {
   @Test
   void descriptionOfAnUndocumentedTool_fallsBackToTheMethodAndThePath() {
     assertThat(getUser.description()).isEqualTo("GET /users/{id}");
+  }
+
+  @Test
+  void constructWithTwoParametersOfTheSameName_throwsNamingTheParameter() {
+    assertThatThrownBy(
+            () ->
+                toolWith(
+                    List.of(
+                        PARAMETER_REQUIRED_PATH_IDENTIFIER,
+                        new ToolParameter(
+                            ARGUMENT_IDENTIFIER,
+                            ParameterLocation.QUERY,
+                            false,
+                            SCHEMA_STRING,
+                            null))))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("declares the parameter id twice");
+  }
+
+  @Test
+  void constructWithTwoBodies_throwsIllegalArgument() {
+    assertThatThrownBy(
+            () ->
+                toolWith(
+                    List.of(
+                        PARAMETER_REQUIRED_BODY,
+                        new ToolParameter(
+                            "payload", ParameterLocation.BODY, false, SCHEMA_OBJECT, null))))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("more than one body");
   }
 
   private static Tool documentedTool() {

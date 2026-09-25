@@ -19,5 +19,11 @@
         <module name="OverloadMethodsDeclarationOrder"/>
         <module name="UnusedImports">
         </module>
+
+        <module name="MatchXpath">
+            <property name="id" value="TestMethodName"/>
+            <property name="query" value="//METHOD_DEF[MODIFIERS/ANNOTATION/IDENT[@text='Test' or @text='ParameterizedTest']]/IDENT[matches(@text, '^(a|an|the)[A-Z]') or not(matches(@text, '^[a-z][a-zA-Z0-9]*_[a-z][a-zA-Z0-9]*$'))]"/>
+            <message key="matchxpath.match" value="A test name must match methodUnderTestCondition_outcome and must not start with an article."/>
+        </module>
     </module>
 </module>

@@ -7,5 +7,5 @@ import org.springframework.boot.test.context.SpringBootTest;
 class SampleRestApiClientApplicationTests {
 
   @Test
-  void contextLoads() {}
+  void startApplication_loadsTheContext() {}
 }

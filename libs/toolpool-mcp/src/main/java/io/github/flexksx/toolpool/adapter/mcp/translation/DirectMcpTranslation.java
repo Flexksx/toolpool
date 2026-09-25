@@ -1,10 +1,10 @@
 package io.github.flexksx.toolpool.adapter.mcp.translation;
 
+import io.github.flexksx.toolpool.adapter.mcp.DuplicatePublishedNameException;
 import io.github.flexksx.toolpool.adapter.mcp.McpToolCallMapper;
 import io.github.flexksx.toolpool.adapter.mcp.McpToolNames;
 import io.github.flexksx.toolpool.application.ToolCatalogUnavailableException;
 import io.github.flexksx.toolpool.application.Toolpool;
-import io.github.flexksx.toolpool.domain.tool.DuplicateToolNameException;
 import io.github.flexksx.toolpool.domain.tool.Tool;
 import io.github.flexksx.toolpool.domain.tool.ToolName;
 import io.github.flexksx.toolpool.domain.tool.UnknownToolException;
@@ -34,8 +34,7 @@ public final class DirectMcpTranslation implements McpTranslation {
       String publishedName = McpToolNames.publishedNameOf(tool.name());
       Tool clashing = toolsByPublishedName.putIfAbsent(publishedName, tool);
       if (clashing != null) {
-        throw new DuplicateToolNameException(
-            new ToolName(publishedName), clashing.target(), tool.target());
+        throw new DuplicatePublishedNameException(publishedName, clashing.name(), tool.name());
       }
       specifications.add(toolSpecification(publishedName, tool));
     }

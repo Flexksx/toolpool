@@ -1,5 +1,7 @@
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import io.github.flexksx.toolpool.adapter.mcp.DuplicatePublishedNameException;
 import io.github.flexksx.toolpool.adapter.mcp.translation.DirectMcpTranslation;
 import io.github.flexksx.toolpool.application.ToolCatalogSource;
 import io.github.flexksx.toolpool.application.Toolpool;
@@ -93,6 +95,21 @@ public class DirectMcpTranslationTest {
 
     assertThat(result.isError()).isFalse();
     assertThat(callExecutor.onlyCall().pathVariables()).containsExactly(Map.entry("id", "u1"));
+  }
+
+  @Test
+  void toolSpecifications_rejectsTwoToolsThatSanitizeToTheSameName() {
+    ToolCatalog catalog =
+        ToolCatalog.of(
+            List.of(toolNamed("get user", null, null), toolNamed("get_user", null, null)));
+    ToolCatalogSource source = () -> catalog;
+    DirectMcpTranslation directMcpTranslation =
+        new DirectMcpTranslation(new Toolpool(source, callExecutor));
+
+    assertThatThrownBy(directMcpTranslation::toolSpecifications)
+        .isInstanceOf(DuplicatePublishedNameException.class)
+        .hasMessageContaining("get user")
+        .hasMessageContaining("get_user");
   }
 
   private DirectMcpTranslation directToolsFor(String specLocation) {

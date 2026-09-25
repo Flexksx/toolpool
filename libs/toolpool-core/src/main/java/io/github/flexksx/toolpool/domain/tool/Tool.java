@@ -1,12 +1,15 @@
 package io.github.flexksx.toolpool.domain.tool;
 
 import io.github.flexksx.toolpool.domain.http.HttpTarget;
+import io.github.flexksx.toolpool.domain.http.ParameterLocation;
 import io.github.flexksx.toolpool.domain.schema.JsonSchema;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
 public record Tool(
@@ -17,6 +20,8 @@ public record Tool(
 
   public Tool {
     parameters = List.copyOf(parameters);
+    requireDistinctNames(name, parameters);
+    requireAtMostOneBody(name, parameters);
   }
 
   public String description() {
@@ -66,6 +71,26 @@ public record Tool(
     }
 
     return request.build();
+  }
+
+  private static void requireDistinctNames(ToolName name, List<ToolParameter> parameters) {
+    Set<String> seenNames = new HashSet<>();
+    for (ToolParameter parameter : parameters) {
+      if (!seenNames.add(parameter.name())) {
+        throw new IllegalArgumentException(
+            "Tool " + name.value() + " declares the parameter " + parameter.name() + " twice");
+      }
+    }
+  }
+
+  private static void requireAtMostOneBody(ToolName name, List<ToolParameter> parameters) {
+    long bodies =
+        parameters.stream()
+            .filter(parameter -> parameter.location() == ParameterLocation.BODY)
+            .count();
+    if (bodies > 1) {
+      throw new IllegalArgumentException("Tool " + name.value() + " declares more than one body");
+    }
   }
 
   private String searchableText() {

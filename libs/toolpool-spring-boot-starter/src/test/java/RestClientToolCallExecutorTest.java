@@ -113,6 +113,17 @@ public class RestClientToolCallExecutorTest {
     assertThat(result.content()).isEqualTo("{}");
   }
 
+  @Test
+  void executeACallThatCannotReachTheApi_answersAFailedResultInsteadOfThrowing() {
+    RestClientToolCallExecutor unreachable =
+        new RestClientToolCallExecutor(RestClient.builder().baseUrl("http://127.0.0.1:1").build());
+
+    ToolCallResult result = unreachable.execute(getUserCall("u1"));
+
+    assertThat(result.failed()).isTrue();
+    assertThat(result.content()).isNotBlank();
+  }
+
   private static ToolCallRequest getUserCall(String id) {
     return ToolCallRequest.builder(GET_USER, GET_USER_TARGET).pathVariable("id", id).build();
   }
