@@ -1,5 +1,6 @@
 package io.github.flexksx.toolpool.application;
 
+import io.github.flexksx.toolpool.domain.auth.AccessToken;
 import io.github.flexksx.toolpool.domain.tool.Tool;
 import io.github.flexksx.toolpool.domain.tool.ToolCallResult;
 import io.github.flexksx.toolpool.domain.tool.ToolName;
@@ -12,10 +13,19 @@ public class Toolpool {
 
   private final ToolCatalogSource catalogSource;
   private final ToolCallExecutor callExecutor;
+  private final UpstreamAccessTokenResolver tokenResolver;
 
   public Toolpool(ToolCatalogSource catalogSource, ToolCallExecutor callExecutor) {
+    this(catalogSource, callExecutor, UpstreamAccessTokenResolver.none());
+  }
+
+  public Toolpool(
+      ToolCatalogSource catalogSource,
+      ToolCallExecutor callExecutor,
+      UpstreamAccessTokenResolver tokenResolver) {
     this.catalogSource = catalogSource;
     this.callExecutor = callExecutor;
+    this.tokenResolver = tokenResolver;
   }
 
   public List<Tool> tools() throws ToolCatalogUnavailableException {
@@ -30,8 +40,14 @@ public class Toolpool {
     return catalogSource.catalog().find(name);
   }
 
-  public ToolCallResult call(ToolName name, @Nullable Map<String, Object> arguments)
+  public ToolCallResult call(
+      ToolName name, @Nullable Map<String, Object> arguments, @Nullable AccessToken callerToken)
       throws ToolCatalogUnavailableException, UnknownToolException {
-    return callExecutor.execute(catalogSource.catalog().find(name).requestFor(arguments));
+    return callExecutor.execute(
+        catalogSource
+            .catalog()
+            .find(name)
+            .requestFor(arguments)
+            .withAccessToken(tokenResolver.upstreamTokenFor(callerToken)));
   }
 }

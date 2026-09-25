@@ -29,6 +29,7 @@ public class ToolpoolArchitectureTest {
   static final String TOOL_DOMAIN = "io.github.flexksx.toolpool.domain.tool..";
   static final String HTTP_DOMAIN = "io.github.flexksx.toolpool.domain.http..";
   static final String SCHEMA_DOMAIN = "io.github.flexksx.toolpool.domain.schema..";
+  static final String AUTH_DOMAIN = "io.github.flexksx.toolpool.domain.auth..";
   static final String APPLICATION = "io.github.flexksx.toolpool.application..";
   static final String OPENAPI_ADAPTER = "io.github.flexksx.toolpool.adapter.openapi..";
   static final String MCP_ADAPTER = "io.github.flexksx.toolpool.adapter.mcp..";
@@ -54,7 +55,7 @@ public class ToolpoolArchitectureTest {
   static final ArchRule theSharedDomainValuesDoNotKnowTheToolDomain =
       noClasses()
           .that()
-          .resideInAnyPackage(HTTP_DOMAIN, SCHEMA_DOMAIN)
+          .resideInAnyPackage(HTTP_DOMAIN, SCHEMA_DOMAIN, AUTH_DOMAIN)
           .should()
           .dependOnClassesThat()
           .resideInAPackage(TOOL_DOMAIN);

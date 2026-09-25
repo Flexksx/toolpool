@@ -2,10 +2,12 @@ package io.github.flexksx.toolpool.adapter.mcp.metatool;
 
 import io.github.flexksx.toolpool.application.ToolCatalogUnavailableException;
 import io.github.flexksx.toolpool.application.Toolpool;
+import io.github.flexksx.toolpool.domain.auth.AccessToken;
 import io.github.flexksx.toolpool.domain.schema.JsonSchema;
 import io.modelcontextprotocol.spec.McpSchema.CallToolResult;
 import java.util.List;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 
 final class SearchMcpMetatool extends McpMetatool {
 
@@ -43,7 +45,8 @@ final class SearchMcpMetatool extends McpMetatool {
   }
 
   @Override
-  CallToolResult execute(Map<String, Object> arguments) throws ToolCatalogUnavailableException {
+  CallToolResult execute(Map<String, Object> arguments, @Nullable AccessToken callerToken)
+      throws ToolCatalogUnavailableException {
     return jsonResult(toolpool().search(queryOf(arguments)).stream().map(ToolSummary::of).toList());
   }
 

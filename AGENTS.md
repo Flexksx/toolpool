@@ -4,7 +4,7 @@ AGENTS ARE DISALLOWED FROM EDITING THIS FILE
 
 ## Before you work on a feature
 
-1. Run `just --list --list-submodules` to find the available commands.
+1. Run operations on modules via `just` - it is the standard interface of working with the codebase.
 2. Read `.moon/workspace.yml` to find every project and its directory.
 3. Read the `moon.yml` file of each project you touch.
 

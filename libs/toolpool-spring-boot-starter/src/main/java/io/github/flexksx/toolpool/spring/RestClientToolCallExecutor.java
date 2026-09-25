@@ -1,11 +1,13 @@
 package io.github.flexksx.toolpool.spring;
 
 import io.github.flexksx.toolpool.application.ToolCallExecutor;
+import io.github.flexksx.toolpool.domain.auth.AccessToken;
 import io.github.flexksx.toolpool.domain.tool.ToolCallRequest;
 import io.github.flexksx.toolpool.domain.tool.ToolCallResult;
 import java.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +20,8 @@ public class RestClientToolCallExecutor implements ToolCallExecutor {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RestClientToolCallExecutor.class);
   private static final String EMPTY_RESPONSE_BODY = "{}";
-  private static final String ABSENT_BODY = "none";
-  private static final String PRESENT_BODY = "present";
+  private static final String ABSENT_VALUE = "none";
+  private static final String PRESENT_VALUE = "present";
 
   private final RestClient restClient;
 
@@ -32,13 +34,15 @@ public class RestClientToolCallExecutor implements ToolCallExecutor {
     long startedAtNanos = System.nanoTime();
     LOGGER
         .atDebug()
-        .setMessage("Tool {} sends {} with path {}, query {}, header names {} and body {}")
+        .setMessage(
+            "Tool {} sends {} with path {}, query {}, header names {}, body {} and access token {}")
         .addArgument(call.toolName().value())
         .addArgument(call.target().describe())
         .addArgument(call.pathVariables())
         .addArgument(call.queryParameters())
         .addArgument(call.headers().keySet())
-        .addArgument(call.body() == null ? ABSENT_BODY : PRESENT_BODY)
+        .addArgument(call.body() == null ? ABSENT_VALUE : PRESENT_VALUE)
+        .addArgument(call.accessToken() == null ? ABSENT_VALUE : PRESENT_VALUE)
         .log();
 
     RestClient.RequestBodySpec request =
@@ -50,7 +54,7 @@ public class RestClientToolCallExecutor implements ToolCallExecutor {
                         .path(call.target().path())
                         .queryParams(queryParametersOf(call))
                         .build(call.pathVariables()))
-            .headers(httpHeaders -> call.headers().forEach(httpHeaders::add));
+            .headers(httpHeaders -> addHeaders(call, httpHeaders));
 
     Object body = call.body();
     if (body != null) {
@@ -83,6 +87,14 @@ public class RestClientToolCallExecutor implements ToolCallExecutor {
 
   private static String failureMessageOf(RestClientException failure) {
     return failure.getMessage() == null ? failure.toString() : failure.getMessage();
+  }
+
+  private static void addHeaders(ToolCallRequest call, HttpHeaders httpHeaders) {
+    call.headers().forEach(httpHeaders::add);
+    AccessToken accessToken = call.accessToken();
+    if (accessToken != null) {
+      httpHeaders.setBearerAuth(accessToken.value());
+    }
   }
 
   private static MultiValueMap<String, String> queryParametersOf(ToolCallRequest call) {

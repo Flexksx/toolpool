@@ -10,8 +10,15 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-autoconfigure'
     implementation 'org.springframework:spring-web'
     implementation 'org.slf4j:slf4j-api'
+    compileOnly 'org.springframework.boot:spring-boot-starter-security-oauth2-resource-server'
+    compileOnly 'org.springframework.boot:spring-boot-starter-security-oauth2-client'
 
     testImplementation testFixtures(project(':libs:toolpool-openapi'))
     testImplementation 'org.springframework:spring-test'
     testImplementation 'org.hamcrest:hamcrest'
+    testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-security-oauth2-resource-server'
+    testImplementation 'org.springframework.boot:spring-boot-starter-security-oauth2-client'
+    testImplementation 'org.testcontainers:testcontainers'
+    testImplementation 'org.testcontainers:testcontainers-junit-jupiter'
 }

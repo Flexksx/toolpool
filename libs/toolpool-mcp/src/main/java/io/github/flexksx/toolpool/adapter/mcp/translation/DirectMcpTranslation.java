@@ -1,10 +1,12 @@
 package io.github.flexksx.toolpool.adapter.mcp.translation;
 
 import io.github.flexksx.toolpool.adapter.mcp.DuplicatePublishedNameException;
+import io.github.flexksx.toolpool.adapter.mcp.McpAccessTokenMapper;
 import io.github.flexksx.toolpool.adapter.mcp.McpToolCallMapper;
 import io.github.flexksx.toolpool.adapter.mcp.McpToolNames;
 import io.github.flexksx.toolpool.application.ToolCatalogUnavailableException;
 import io.github.flexksx.toolpool.application.Toolpool;
+import io.github.flexksx.toolpool.domain.auth.AccessToken;
 import io.github.flexksx.toolpool.domain.tool.Tool;
 import io.github.flexksx.toolpool.domain.tool.ToolName;
 import io.github.flexksx.toolpool.domain.tool.UnknownToolException;
@@ -49,13 +51,17 @@ public final class DirectMcpTranslation implements McpTranslation {
             .build();
     return SyncToolSpecification.builder()
         .tool(mcpTool)
-        .callHandler((_, request) -> call(tool.name(), request.arguments()))
+        .callHandler(
+            (exchange, request) ->
+                call(
+                    tool.name(), request.arguments(), McpAccessTokenMapper.toCallerToken(exchange)))
         .build();
   }
 
-  private McpSchema.CallToolResult call(ToolName name, @Nullable Map<String, Object> arguments) {
+  private McpSchema.CallToolResult call(
+      ToolName name, @Nullable Map<String, Object> arguments, @Nullable AccessToken callerToken) {
     try {
-      return McpToolCallMapper.toCallToolResult(toolpool.call(name, arguments));
+      return McpToolCallMapper.toCallToolResult(toolpool.call(name, arguments, callerToken));
     } catch (ToolCatalogUnavailableException | UnknownToolException | RuntimeException failure) {
       return McpToolCallMapper.toFailedCallToolResult(failure);
     }

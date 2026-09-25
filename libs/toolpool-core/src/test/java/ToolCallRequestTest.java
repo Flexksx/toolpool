@@ -12,7 +12,7 @@ public class ToolCallRequestTest {
     assertThatThrownBy(
             () ->
                 new ToolCallRequest(
-                    new ToolName("getUser"), null, Map.of(), Map.of(), Map.of(), null))
+                    new ToolName("getUser"), null, Map.of(), Map.of(), Map.of(), null, null))
         .isInstanceOf(NullPointerException.class)
         .hasMessageContaining("needs a target");
   }

@@ -1,11 +1,13 @@
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.headerDoesNotExist;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
+import io.github.flexksx.toolpool.domain.auth.AccessToken;
 import io.github.flexksx.toolpool.domain.http.HttpMethod;
 import io.github.flexksx.toolpool.domain.http.HttpTarget;
 import io.github.flexksx.toolpool.domain.tool.ToolCallRequest;
@@ -17,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -55,10 +58,35 @@ public class RestClientToolCallExecutorTest {
                 Map.of("id", "u1"),
                 Map.of("verbose", List.of("true")),
                 Map.of("X-Request-Id", "r1"),
+                null,
                 null));
 
     apiServer.verify();
     assertThat(result).isEqualTo(new ToolCallResult(USER_JSON, false));
+  }
+
+  @Test
+  void executeACallWithAnAccessToken_sendsItAsABearerAuthorizationHeader() {
+    apiServer
+        .expect(requestTo(BASE_URL + "/users/u1"))
+        .andExpect(header(HttpHeaders.AUTHORIZATION, "Bearer t1"))
+        .andRespond(withSuccess(USER_JSON, MediaType.APPLICATION_JSON));
+
+    executor.execute(getUserCall("u1").withAccessToken(new AccessToken("t1")));
+
+    apiServer.verify();
+  }
+
+  @Test
+  void executeACallWithoutAnAccessToken_sendsNoAuthorizationHeader() {
+    apiServer
+        .expect(requestTo(BASE_URL + "/users/u1"))
+        .andExpect(headerDoesNotExist(HttpHeaders.AUTHORIZATION))
+        .andRespond(withSuccess(USER_JSON, MediaType.APPLICATION_JSON));
+
+    executor.execute(getUserCall("u1"));
+
+    apiServer.verify();
   }
 
   @Test
@@ -90,7 +118,8 @@ public class RestClientToolCallExecutorTest {
                 Map.of("id", "u1"),
                 Map.of(),
                 Map.of(),
-                orderedUserBody()));
+                orderedUserBody(),
+                null));
 
     apiServer.verify();
     assertThat(result.failed()).isFalse();
@@ -131,7 +160,7 @@ public class RestClientToolCallExecutorTest {
 
   private static ToolCallRequest getUserCall(String id) {
     return new ToolCallRequest(
-        GET_USER, GET_USER_TARGET, Map.of("id", id), Map.of(), Map.of(), null);
+        GET_USER, GET_USER_TARGET, Map.of("id", id), Map.of(), Map.of(), null, null);
   }
 
   private static Map<String, Object> orderedUserBody() {

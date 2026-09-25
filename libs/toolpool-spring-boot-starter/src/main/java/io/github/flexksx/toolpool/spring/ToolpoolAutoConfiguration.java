@@ -6,6 +6,7 @@ import io.github.flexksx.toolpool.application.ToolCallExecutor;
 import io.github.flexksx.toolpool.application.ToolCatalogSource;
 import io.github.flexksx.toolpool.application.ToolCatalogUnavailableException;
 import io.github.flexksx.toolpool.application.Toolpool;
+import io.github.flexksx.toolpool.application.UpstreamAccessTokenResolver;
 import io.modelcontextprotocol.server.McpServerFeatures.SyncToolSpecification;
 import java.util.List;
 import org.slf4j.Logger;
@@ -14,15 +15,21 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.util.ClassUtils;
 import org.springframework.web.client.RestClient;
 
 @AutoConfiguration
+@EnableConfigurationProperties(ToolpoolAuthProperties.class)
 public class ToolpoolAutoConfiguration {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ToolpoolAutoConfiguration.class);
   private static final String OBSERVED_CLIENT = "context-managed";
   private static final String UNMANAGED_CLIENT = "standalone";
+  private static final String RESOURCE_SERVER_CLASS =
+      "org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint";
 
   @Bean
   @ConditionalOnMissingBean
@@ -53,8 +60,39 @@ public class ToolpoolAutoConfiguration {
 
   @Bean
   @ConditionalOnMissingBean
-  Toolpool toolpool(ToolCatalogSource catalogSource, ToolCallExecutor callExecutor) {
-    return new Toolpool(catalogSource, callExecutor);
+  UpstreamAccessTokenResolver upstreamAccessTokenResolver(ToolpoolAuthProperties auth) {
+    LOGGER
+        .atInfo()
+        .setMessage("Toolpool resolves upstream access tokens in {} mode")
+        .addArgument(auth.mode())
+        .log();
+    return switch (auth.mode()) {
+      case NONE -> UpstreamAccessTokenResolver.none();
+      case PASSTHROUGH -> UpstreamAccessTokenResolver.passthrough();
+      case TOKEN_EXCHANGE ->
+          throw new IllegalStateException(
+              "toolpool.auth.mode=token-exchange needs"
+                  + " spring-boot-starter-security-oauth2-client on the classpath");
+    };
+  }
+
+  @Bean
+  @ConditionalOnMissingBean
+  Toolpool toolpool(
+      ToolCatalogSource catalogSource,
+      ToolCallExecutor callExecutor,
+      UpstreamAccessTokenResolver tokenResolver,
+      ToolpoolAuthProperties auth,
+      ResourceLoader resourceLoader) {
+    if (auth.mode().requiresCallerToken()
+        && !ClassUtils.isPresent(RESOURCE_SERVER_CLASS, resourceLoader.getClassLoader())) {
+      throw new IllegalStateException(
+          "toolpool.auth.mode="
+              + auth.mode()
+              + " needs spring-boot-starter-security-oauth2-resource-server on the classpath,"
+              + " so that Toolpool can check each caller token");
+    }
+    return new Toolpool(catalogSource, callExecutor, tokenResolver);
   }
 
   @Bean

@@ -1,8 +1,10 @@
 package io.github.flexksx.toolpool.adapter.mcp.metatool;
 
+import io.github.flexksx.toolpool.adapter.mcp.McpAccessTokenMapper;
 import io.github.flexksx.toolpool.adapter.mcp.McpToolCallMapper;
 import io.github.flexksx.toolpool.application.ToolCatalogUnavailableException;
 import io.github.flexksx.toolpool.application.Toolpool;
+import io.github.flexksx.toolpool.domain.auth.AccessToken;
 import io.github.flexksx.toolpool.domain.schema.JsonSchema;
 import io.github.flexksx.toolpool.domain.tool.ToolName;
 import io.github.flexksx.toolpool.domain.tool.UnknownToolException;
@@ -51,7 +53,7 @@ public abstract sealed class McpMetatool
 
   abstract JsonSchema inputSchema();
 
-  abstract CallToolResult execute(Map<String, Object> arguments)
+  abstract CallToolResult execute(Map<String, Object> arguments, @Nullable AccessToken callerToken)
       throws ToolCatalogUnavailableException, UnknownToolException;
 
   final Toolpool toolpool() {
@@ -74,13 +76,16 @@ public abstract sealed class McpMetatool
         McpSchema.Tool.builder(name(), inputSchema().asMap()).description(description()).build();
     return SyncToolSpecification.builder()
         .tool(tool)
-        .callHandler((_, request) -> handleToolCall(request.arguments()))
+        .callHandler(
+            (exchange, request) ->
+                handleToolCall(request.arguments(), McpAccessTokenMapper.toCallerToken(exchange)))
         .build();
   }
 
-  private CallToolResult handleToolCall(@Nullable Map<String, Object> arguments) {
+  private CallToolResult handleToolCall(
+      @Nullable Map<String, Object> arguments, @Nullable AccessToken callerToken) {
     try {
-      return execute(arguments == null ? Map.of() : arguments);
+      return execute(arguments == null ? Map.of() : arguments, callerToken);
     } catch (ToolCatalogUnavailableException | UnknownToolException | RuntimeException failure) {
       return McpToolCallMapper.toFailedCallToolResult(failure);
     }

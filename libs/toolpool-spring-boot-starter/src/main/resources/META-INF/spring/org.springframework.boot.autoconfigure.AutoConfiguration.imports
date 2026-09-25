@@ -1,1 +1,4 @@
 io.github.flexksx.toolpool.spring.ToolpoolAutoConfiguration
+io.github.flexksx.toolpool.spring.ToolpoolMcpTransportAutoConfiguration
+io.github.flexksx.toolpool.spring.ToolpoolTokenExchangeAutoConfiguration
+io.github.flexksx.toolpool.spring.ToolpoolSecurityAutoConfiguration

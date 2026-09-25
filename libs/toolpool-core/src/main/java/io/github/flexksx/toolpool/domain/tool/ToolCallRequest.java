@@ -1,5 +1,6 @@
 package io.github.flexksx.toolpool.domain.tool;
 
+import io.github.flexksx.toolpool.domain.auth.AccessToken;
 import io.github.flexksx.toolpool.domain.http.HttpTarget;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -14,7 +15,8 @@ public record ToolCallRequest(
     Map<String, Object> pathVariables,
     Map<String, List<String>> queryParameters,
     Map<String, String> headers,
-    @Nullable Object body) {
+    @Nullable Object body,
+    @Nullable AccessToken accessToken) {
 
   public ToolCallRequest {
     Objects.requireNonNull(toolName, "A tool call request needs a tool name");
@@ -22,6 +24,11 @@ public record ToolCallRequest(
     pathVariables = orderedCopyOf(pathVariables);
     queryParameters = orderedCopyOf(queryParameters);
     headers = orderedCopyOf(headers);
+  }
+
+  public ToolCallRequest withAccessToken(@Nullable AccessToken token) {
+    return new ToolCallRequest(
+        toolName, target, pathVariables, queryParameters, headers, body, token);
   }
 
   private static <V> Map<String, V> orderedCopyOf(Map<String, V> source) {

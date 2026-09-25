@@ -34,6 +34,8 @@ public class OpenApiToolCatalogMapperTest {
   private static final String DUPLICATE_SPEC = "openapi-specs/duplicate-operation-id.openapi.json";
   private static final String MISSING_ID_SPEC = "openapi-specs/missing-operation-id.openapi.json";
   private static final String COOKIE_SPEC = "openapi-specs/cookie-parameter.openapi.json";
+  private static final String RESERVED_HEADER_SPEC =
+      "openapi-specs/reserved-header-parameter.openapi.json";
 
   @Test
   void toToolCatalogOfASpec_buildsOneToolPerOperationKeyedByItsOperationId() throws Exception {
@@ -88,6 +90,16 @@ public class OpenApiToolCatalogMapperTest {
     Tool listUsers = toToolCatalog(COOKIE_SPEC).find(new ToolName("listUsers"));
 
     assertThat(listUsers.parameters()).extracting(ToolParameter::name).containsExactly("page");
+  }
+
+  @Test
+  void toToolCatalogOfAnOperationWithReservedHeaderParameters_skipsThoseHeadersOnly()
+      throws Exception {
+    Tool listUsers = toToolCatalog(RESERVED_HEADER_SPEC).find(new ToolName("listUsers"));
+
+    assertThat(listUsers.parameters())
+        .extracting(ToolParameter::name)
+        .containsExactly("X-Request-Id");
   }
 
   @Test

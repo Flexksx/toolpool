@@ -3,12 +3,14 @@ package io.github.flexksx.toolpool.adapter.mcp.metatool;
 import io.github.flexksx.toolpool.adapter.mcp.McpToolCallMapper;
 import io.github.flexksx.toolpool.application.ToolCatalogUnavailableException;
 import io.github.flexksx.toolpool.application.Toolpool;
+import io.github.flexksx.toolpool.domain.auth.AccessToken;
 import io.github.flexksx.toolpool.domain.schema.JsonSchema;
 import io.github.flexksx.toolpool.domain.tool.UnknownToolException;
 import io.modelcontextprotocol.spec.McpSchema.CallToolResult;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 
 final class CallMcpMetatool extends McpMetatool {
 
@@ -47,10 +49,10 @@ final class CallMcpMetatool extends McpMetatool {
   }
 
   @Override
-  CallToolResult execute(Map<String, Object> arguments)
+  CallToolResult execute(Map<String, Object> arguments, @Nullable AccessToken callerToken)
       throws ToolCatalogUnavailableException, UnknownToolException {
     return McpToolCallMapper.toCallToolResult(
-        toolpool().call(requiredToolName(arguments), callArgumentsOf(arguments)));
+        toolpool().call(requiredToolName(arguments), callArgumentsOf(arguments), callerToken));
   }
 
   private static Map<String, Object> callArgumentsOf(Map<String, Object> arguments) {

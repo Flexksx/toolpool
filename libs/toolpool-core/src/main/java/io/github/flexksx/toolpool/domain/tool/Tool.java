@@ -71,7 +71,7 @@ public record Tool(
       }
     }
 
-    return new ToolCallRequest(name, target, pathVariables, queryParameters, headers, body);
+    return new ToolCallRequest(name, target, pathVariables, queryParameters, headers, body, null);
   }
 
   private static void requireDistinctNames(ToolName name, List<ToolParameter> parameters) {

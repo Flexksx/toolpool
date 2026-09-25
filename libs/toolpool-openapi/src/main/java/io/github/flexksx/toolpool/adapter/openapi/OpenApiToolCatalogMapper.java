@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
@@ -34,6 +35,8 @@ public final class OpenApiToolCatalogMapper {
   private static final String JSON_CONTENT_TYPE = "application/json";
   private static final Set<ParameterLocation> DECLARABLE_LOCATIONS =
       EnumSet.of(ParameterLocation.PATH, ParameterLocation.QUERY, ParameterLocation.HEADER);
+  private static final Set<String> RESERVED_HEADERS =
+      Set.of("accept", "content-type", "authorization");
 
   private OpenApiToolCatalogMapper() {}
 
@@ -107,6 +110,14 @@ public final class OpenApiToolCatalogMapper {
           parameter.getName(),
           target.describe(),
           parameter.getIn());
+      return Optional.empty();
+    }
+    if (location.get() == ParameterLocation.HEADER
+        && RESERVED_HEADERS.contains(parameter.getName().toLowerCase(Locale.ROOT))) {
+      LOGGER.warn(
+          "Skipped the header parameter {} of {} because OpenAPI reserves that header",
+          parameter.getName(),
+          target.describe());
       return Optional.empty();
     }
     if (!seenNames.add(parameter.getName())) {
