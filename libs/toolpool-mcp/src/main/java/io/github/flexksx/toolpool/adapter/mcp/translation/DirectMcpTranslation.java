@@ -18,7 +18,6 @@ import org.jspecify.annotations.Nullable;
 
 public final class DirectMcpTranslation implements McpTranslation {
 
-  private final McpToolCallMapper callMapper = new McpToolCallMapper();
   private final Toolpool toolpool;
 
   public DirectMcpTranslation(Toolpool toolpool) {
@@ -56,9 +55,9 @@ public final class DirectMcpTranslation implements McpTranslation {
 
   private McpSchema.CallToolResult call(ToolName name, @Nullable Map<String, Object> arguments) {
     try {
-      return callMapper.from(toolpool.call(name, arguments));
+      return McpToolCallMapper.toCallToolResult(toolpool.call(name, arguments));
     } catch (ToolCatalogUnavailableException | UnknownToolException | RuntimeException failure) {
-      return callMapper.fromFailure(failure);
+      return McpToolCallMapper.toFailedCallToolResult(failure);
     }
   }
 }

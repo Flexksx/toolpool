@@ -27,8 +27,6 @@ final class CallMcpMetatool extends McpMetatool {
                   .withDescription("JSON object holding one entry per tool parameter")),
           List.of(TOOL_NAME_ARGUMENT, ARGUMENTS_ARGUMENT));
 
-  private final McpToolCallMapper callMapper = new McpToolCallMapper();
-
   CallMcpMetatool(Toolpool toolpool) {
     super(toolpool);
   }
@@ -51,7 +49,7 @@ final class CallMcpMetatool extends McpMetatool {
   @Override
   CallToolResult execute(Map<String, Object> arguments)
       throws ToolCatalogUnavailableException, UnknownToolException {
-    return callMapper.from(
+    return McpToolCallMapper.toCallToolResult(
         toolpool().call(requiredToolName(arguments), callArgumentsOf(arguments)));
   }
 

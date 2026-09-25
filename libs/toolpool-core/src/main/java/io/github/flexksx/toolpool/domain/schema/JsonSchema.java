@@ -8,12 +8,13 @@ import org.jspecify.annotations.Nullable;
 
 public record JsonSchema(Map<String, Object> asMap) {
 
-  private static final String DESCRIPTION_KEYWORD = "description";
-  private static final String OBJECT_TYPE = "object";
-  private static final String PROPERTIES_KEYWORD = "properties";
-  private static final String REQUIRED_KEYWORD = "required";
-  private static final String STRING_TYPE = "string";
-  private static final String TYPE_KEYWORD = "type";
+  public static final String BOOLEAN_TYPE = "boolean";
+  public static final String DESCRIPTION_KEYWORD = "description";
+  public static final String OBJECT_TYPE = "object";
+  public static final String PROPERTIES_KEYWORD = "properties";
+  public static final String REQUIRED_KEYWORD = "required";
+  public static final String STRING_TYPE = "string";
+  public static final String TYPE_KEYWORD = "type";
 
   public JsonSchema {
     asMap = Collections.unmodifiableMap(new LinkedHashMap<>(asMap));

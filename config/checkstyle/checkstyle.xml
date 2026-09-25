@@ -25,5 +25,11 @@
             <property name="query" value="//METHOD_DEF[MODIFIERS/ANNOTATION/IDENT[@text='Test' or @text='ParameterizedTest']]/IDENT[matches(@text, '^(a|an|the)[A-Z]') or not(matches(@text, '^[a-z][a-zA-Z0-9]*_[a-z][a-zA-Z0-9]*$'))]"/>
             <message key="matchxpath.match" value="A test name must match methodUnderTestCondition_outcome and must not start with an article."/>
         </module>
+
+        <module name="MatchXpath">
+            <property name="id" value="MapperMethodName"/>
+            <property name="query" value="//CLASS_DEF[IDENT[ends-with(@text, 'Mapper')]]/OBJBLOCK/METHOD_DEF[MODIFIERS/LITERAL_PUBLIC or MODIFIERS/LITERAL_STATIC]/IDENT[not(matches(@text, '^to[A-Z]'))]"/>
+            <message key="matchxpath.match" value="A public or static method of a Mapper class must be named toX."/>
+        </module>
     </module>
 </module>

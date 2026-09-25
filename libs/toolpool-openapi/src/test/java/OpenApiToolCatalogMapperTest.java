@@ -36,8 +36,8 @@ public class OpenApiToolCatalogMapperTest {
   private static final String COOKIE_SPEC = "openapi-specs/cookie-parameter.openapi.json";
 
   @Test
-  void mapASpec_buildsOneToolPerOperationKeyedByItsOperationId() throws Exception {
-    ToolCatalog catalog = map(ToolpoolFixtures.SAMPLE_SPEC);
+  void toToolCatalogOfASpec_buildsOneToolPerOperationKeyedByItsOperationId() throws Exception {
+    ToolCatalog catalog = toToolCatalog(ToolpoolFixtures.SAMPLE_SPEC);
 
     assertThat(catalog.tools())
         .extracting(tool -> tool.name().value())
@@ -47,8 +47,9 @@ public class OpenApiToolCatalogMapperTest {
   }
 
   @Test
-  void mapAnOperation_mapsEveryParameterToItsLocationAndRequiredFlag() throws Exception {
-    Tool getUser = map(ToolpoolFixtures.SAMPLE_SPEC).find(new ToolName("getUser"));
+  void toToolCatalogOfAnOperation_mapsEveryParameterToItsLocationAndRequiredFlag()
+      throws Exception {
+    Tool getUser = toToolCatalog(ToolpoolFixtures.SAMPLE_SPEC).find(new ToolName("getUser"));
 
     assertThat(getUser.parameters())
         .extracting(ToolParameter::name, ToolParameter::location, ToolParameter::required)
@@ -59,8 +60,9 @@ public class OpenApiToolCatalogMapperTest {
   }
 
   @Test
-  void mapAnOperationWithAJsonBody_carriesTheFullyResolvedBodySchema() throws Exception {
-    Tool updateUser = map(ToolpoolFixtures.SAMPLE_SPEC).find(new ToolName("updateUser"));
+  void toToolCatalogOfAnOperationWithAJsonBody_carriesTheFullyResolvedBodySchema()
+      throws Exception {
+    Tool updateUser = toToolCatalog(ToolpoolFixtures.SAMPLE_SPEC).find(new ToolName("updateUser"));
 
     ToolParameter body = bodyOf(updateUser);
     assertThat(body).isNotNull();
@@ -74,27 +76,30 @@ public class OpenApiToolCatalogMapperTest {
   }
 
   @Test
-  void mapAnOperationWithoutAnOperationId_skipsThatOperation() throws Exception {
-    assertThat(map(MISSING_ID_SPEC).tools())
+  void toToolCatalogOfAnOperationWithoutAnOperationId_skipsThatOperation() throws Exception {
+    assertThat(toToolCatalog(MISSING_ID_SPEC).tools())
         .extracting(tool -> tool.name().value())
         .containsExactly("listUsers");
   }
 
   @Test
-  void mapAnOperationWithAnUnsupportedParameterLocation_skipsThatParameterOnly() throws Exception {
-    Tool listUsers = map(COOKIE_SPEC).find(new ToolName("listUsers"));
+  void toToolCatalogOfAnOperationWithAnUnsupportedParameterLocation_skipsThatParameterOnly()
+      throws Exception {
+    Tool listUsers = toToolCatalog(COOKIE_SPEC).find(new ToolName("listUsers"));
 
     assertThat(listUsers.parameters()).extracting(ToolParameter::name).containsExactly("page");
   }
 
   @Test
-  void mapAnOperationThatDeclaresOneNameTwice_keepsTheFirstDeclarationOnly() {
+  void toToolCatalogOfAnOperationThatDeclaresOneNameTwice_keepsTheFirstDeclarationOnly() {
     Operation operation = new Operation().operationId("getUser");
     operation.addParametersItem(new PathParameter().name("id").schema(new StringSchema()));
     operation.addParametersItem(new QueryParameter().name("id").schema(new StringSchema()));
 
     Tool getUser =
-        OpenApiToolCatalogMapper.map(specWith("/users/{id}", operation)).tools().getFirst();
+        OpenApiToolCatalogMapper.toToolCatalog(specWith("/users/{id}", operation))
+            .tools()
+            .getFirst();
 
     assertThat(getUser.parameters())
         .extracting(ToolParameter::name, ToolParameter::location)
@@ -102,38 +107,38 @@ public class OpenApiToolCatalogMapperTest {
   }
 
   @Test
-  void mapARequestBodyWithoutJsonContent_leavesTheToolWithoutABody() throws Exception {
-    assertThat(bodyOf(map(COOKIE_SPEC).find(new ToolName("createUser")))).isNull();
+  void toToolCatalogOfARequestBodyWithoutJsonContent_leavesTheToolWithoutABody() throws Exception {
+    assertThat(bodyOf(toToolCatalog(COOKIE_SPEC).find(new ToolName("createUser")))).isNull();
   }
 
   @Test
-  void mapASpecWithADuplicateOperationId_throwsNamingBothTargets() {
-    assertThatThrownBy(() -> map(DUPLICATE_SPEC))
+  void toToolCatalogOfASpecWithADuplicateOperationId_throwsNamingBothTargets() {
+    assertThatThrownBy(() -> toToolCatalog(DUPLICATE_SPEC))
         .isInstanceOf(DuplicateToolNameException.class)
         .hasMessageContainingAll("listUsers", "/users", "/people");
   }
 
   @Test
-  void mapAParameterThatDeclaresTheBodyLocation_skipsThatParameter() {
+  void toToolCatalogOfAParameterThatDeclaresTheBodyLocation_skipsThatParameter() {
     Operation operation = new Operation().operationId("createUser");
     operation.addParametersItem(
         new Parameter().name("payload").in("body").schema(new StringSchema()));
 
     Tool createUser =
-        OpenApiToolCatalogMapper.map(specWith("/users", operation)).tools().getFirst();
+        OpenApiToolCatalogMapper.toToolCatalog(specWith("/users", operation)).tools().getFirst();
 
     assertThat(createUser.parameters()).isEmpty();
   }
 
   @Test
-  void mapARequestBodyWhenAParameterAlreadyClaimsTheBodyName_keepsTheParameter() {
+  void toToolCatalogOfARequestBodyWhenAParameterAlreadyClaimsTheBodyName_keepsTheParameter() {
     Operation operation = new Operation().operationId("createUser");
     operation.addParametersItem(
         new QueryParameter().name(ToolParameter.BODY_NAME).schema(new StringSchema()));
     operation.setRequestBody(jsonRequestBody());
 
     Tool createUser =
-        OpenApiToolCatalogMapper.map(specWith("/users", operation)).tools().getFirst();
+        OpenApiToolCatalogMapper.toToolCatalog(specWith("/users", operation)).tools().getFirst();
 
     assertThat(createUser.parameters())
         .extracting(ToolParameter::name, ToolParameter::location)
@@ -141,12 +146,12 @@ public class OpenApiToolCatalogMapperTest {
   }
 
   @Test
-  void mapARequestBodyThatDeclaresNoRequiredFlag_leavesTheBodyArgumentOptional() {
+  void toToolCatalogOfARequestBodyThatDeclaresNoRequiredFlag_leavesTheBodyArgumentOptional() {
     Operation operation = new Operation().operationId("createUser");
     operation.setRequestBody(jsonRequestBody());
 
     Tool createUser =
-        OpenApiToolCatalogMapper.map(specWith("/users", operation)).tools().getFirst();
+        OpenApiToolCatalogMapper.toToolCatalog(specWith("/users", operation)).tools().getFirst();
 
     ToolParameter body = bodyOf(createUser);
     assertThat(body).isNotNull();
@@ -154,8 +159,8 @@ public class OpenApiToolCatalogMapperTest {
   }
 
   @Test
-  void mapAnEmptySpec_buildsAnEmptyCatalog() {
-    assertThat(OpenApiToolCatalogMapper.map(new OpenAPI()).tools()).isEmpty();
+  void toToolCatalogOfAnEmptySpec_buildsAnEmptyCatalog() {
+    assertThat(OpenApiToolCatalogMapper.toToolCatalog(new OpenAPI()).tools()).isEmpty();
   }
 
   private static RequestBody jsonRequestBody() {
@@ -180,7 +185,7 @@ public class OpenApiToolCatalogMapperTest {
         .orElse(null);
   }
 
-  private static ToolCatalog map(String specLocation) throws Exception {
+  private static ToolCatalog toToolCatalog(String specLocation) throws Exception {
     return new OpenApiToolCatalogSource(specLocation).catalog();
   }
 }

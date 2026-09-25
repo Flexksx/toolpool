@@ -37,7 +37,7 @@ public final class OpenApiToolCatalogMapper {
 
   private OpenApiToolCatalogMapper() {}
 
-  public static ToolCatalog map(OpenAPI spec) {
+  public static ToolCatalog toToolCatalog(OpenAPI spec) {
     List<Tool> tools = new ArrayList<>();
     Paths paths = spec.getPaths();
     if (paths != null) {
@@ -47,12 +47,12 @@ public final class OpenApiToolCatalogMapper {
                   .readOperationsMap()
                   .forEach(
                       (method, operation) ->
-                          toolOf(path, method, operation).ifPresent(tools::add)));
+                          toTool(path, method, operation).ifPresent(tools::add)));
     }
     return ToolCatalog.of(tools);
   }
 
-  private static Optional<Tool> toolOf(
+  private static Optional<Tool> toTool(
       String path, PathItem.HttpMethod method, Operation operation) {
     HttpTarget target = new HttpTarget(HttpMethod.valueOf(method.name()), path);
     String operationId = operation.getOperationId();
@@ -65,25 +65,25 @@ public final class OpenApiToolCatalogMapper {
         new Tool(
             new ToolName(operationId),
             target,
-            documentationOf(operation),
-            parametersOf(target, operation)));
+            toDocumentation(operation),
+            toParameters(target, operation)));
   }
 
-  private static ToolDocumentation documentationOf(Operation operation) {
+  private static ToolDocumentation toDocumentation(Operation operation) {
     List<String> tags = operation.getTags();
     return new ToolDocumentation(
         operation.getSummary(), operation.getDescription(), tags == null ? List.of() : tags);
   }
 
-  private static List<ToolParameter> parametersOf(HttpTarget target, Operation operation) {
+  private static List<ToolParameter> toParameters(HttpTarget target, Operation operation) {
     List<ToolParameter> toolParameters = new ArrayList<>();
     Set<String> seenNames = new HashSet<>();
     if (operation.getParameters() != null) {
       for (Parameter parameter : operation.getParameters()) {
-        declaredParameterOf(target, parameter, seenNames).ifPresent(toolParameters::add);
+        toDeclaredParameter(target, parameter, seenNames).ifPresent(toolParameters::add);
       }
     }
-    bodyOf(target, operation.getRequestBody())
+    toBody(target, operation.getRequestBody())
         .ifPresent(
             body -> {
               if (seenNames.add(body.name())) {
@@ -98,9 +98,9 @@ public final class OpenApiToolCatalogMapper {
     return List.copyOf(toolParameters);
   }
 
-  private static Optional<ToolParameter> declaredParameterOf(
+  private static Optional<ToolParameter> toDeclaredParameter(
       HttpTarget target, Parameter parameter, Set<String> seenNames) {
-    Optional<ParameterLocation> location = parameterLocationOf(parameter.getIn());
+    Optional<ParameterLocation> location = toParameterLocation(parameter.getIn());
     if (location.isEmpty()) {
       LOGGER.warn(
           "Skipped the parameter {} of {} because the location {} is not supported",
@@ -121,17 +121,17 @@ public final class OpenApiToolCatalogMapper {
             parameter.getName(),
             location.get(),
             Boolean.TRUE.equals(parameter.getRequired()),
-            jsonSchemaOf(parameter.getSchema()),
+            toJsonSchema(parameter.getSchema()),
             parameter.getDescription()));
   }
 
-  private static Optional<ParameterLocation> parameterLocationOf(@Nullable String openApiLocation) {
+  private static Optional<ParameterLocation> toParameterLocation(@Nullable String openApiLocation) {
     return DECLARABLE_LOCATIONS.stream()
         .filter(location -> location.name().equalsIgnoreCase(openApiLocation))
         .findFirst();
   }
 
-  private static Optional<ToolParameter> bodyOf(
+  private static Optional<ToolParameter> toBody(
       HttpTarget target, @Nullable RequestBody requestBody) {
     if (requestBody == null || requestBody.getContent() == null) {
       return Optional.empty();
@@ -147,11 +147,11 @@ public final class OpenApiToolCatalogMapper {
     return Optional.of(
         ToolParameter.body(
             Boolean.TRUE.equals(requestBody.getRequired()),
-            jsonSchemaOf(jsonContent.getSchema()),
+            toJsonSchema(jsonContent.getSchema()),
             requestBody.getDescription()));
   }
 
-  private static JsonSchema jsonSchemaOf(@Nullable Schema<?> schema) {
+  private static JsonSchema toJsonSchema(@Nullable Schema<?> schema) {
     return schema == null ? JsonSchema.empty() : new JsonSchema(Json31.jsonSchemaAsMap(schema));
   }
 }

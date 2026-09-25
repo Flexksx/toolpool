@@ -22,7 +22,6 @@ public abstract sealed class McpMetatool
 
   static final String TOOL_NAME_ARGUMENT = "toolName";
 
-  private final McpToolCallMapper failureMapper = new McpToolCallMapper();
   private final Toolpool toolpool;
 
   McpMetatool(Toolpool toolpool) {
@@ -83,7 +82,7 @@ public abstract sealed class McpMetatool
     try {
       return execute(arguments == null ? Map.of() : arguments);
     } catch (ToolCatalogUnavailableException | UnknownToolException | RuntimeException failure) {
-      return failureMapper.fromFailure(failure);
+      return McpToolCallMapper.toFailedCallToolResult(failure);
     }
   }
 }
