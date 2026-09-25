@@ -221,16 +221,10 @@ public class ToolTest {
   }
 
   @Test
-  void constructWithTwoBodies_throwsIllegalArgument() {
-    assertThatThrownBy(
-            () ->
-                toolWith(
-                    List.of(
-                        PARAMETER_REQUIRED_BODY,
-                        new ToolParameter(
-                            "payload", ParameterLocation.BODY, false, SCHEMA_OBJECT, null))))
+  void constructWithTwoBodies_throwsNamingTheBodyTwice() {
+    assertThatThrownBy(() -> toolWith(List.of(PARAMETER_REQUIRED_BODY, PARAMETER_OPTIONAL_BODY)))
         .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("more than one body");
+        .hasMessageContaining("declares the parameter body twice");
   }
 
   private static Tool documentedTool() {

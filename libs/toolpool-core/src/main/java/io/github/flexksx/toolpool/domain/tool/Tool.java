@@ -1,7 +1,6 @@
 package io.github.flexksx.toolpool.domain.tool;
 
 import io.github.flexksx.toolpool.domain.http.HttpTarget;
-import io.github.flexksx.toolpool.domain.http.ParameterLocation;
 import io.github.flexksx.toolpool.domain.schema.JsonSchema;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -21,7 +20,6 @@ public record Tool(
   public Tool {
     parameters = List.copyOf(parameters);
     requireDistinctNames(name, parameters);
-    requireAtMostOneBody(name, parameters);
   }
 
   public String description() {
@@ -80,16 +78,6 @@ public record Tool(
         throw new IllegalArgumentException(
             "Tool " + name.value() + " declares the parameter " + parameter.name() + " twice");
       }
-    }
-  }
-
-  private static void requireAtMostOneBody(ToolName name, List<ToolParameter> parameters) {
-    long bodies =
-        parameters.stream()
-            .filter(parameter -> parameter.location() == ParameterLocation.BODY)
-            .count();
-    if (bodies > 1) {
-      throw new IllegalArgumentException("Tool " + name.value() + " declares more than one body");
     }
   }
 

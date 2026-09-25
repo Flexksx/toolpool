@@ -17,6 +17,10 @@ public record ToolParameter(
     if (name.isBlank()) {
       throw new IllegalArgumentException("A parameter name cannot be blank");
     }
+    if (location == ParameterLocation.BODY && !BODY_NAME.equals(name)) {
+      throw new IllegalArgumentException(
+          "A body parameter must be named " + BODY_NAME + ", not " + name);
+    }
   }
 
   public static ToolParameter body(
