@@ -1,7 +1,7 @@
-package io.github.flexksx.toolpool.spring;
+package io.github.flexksx.toolpool.spring.auth;
 
-import io.github.flexksx.toolpool.application.UpstreamAccessTokenResolver;
-import io.github.flexksx.toolpool.application.UpstreamAccessTokenUnavailableException;
+import io.github.flexksx.toolpool.application.port.out.ResolveUpstreamTokenPort;
+import io.github.flexksx.toolpool.application.port.out.UpstreamAccessTokenUnavailableException;
 import io.github.flexksx.toolpool.domain.auth.AccessToken;
 import java.time.Clock;
 import java.time.Duration;
@@ -17,7 +17,7 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 
-public final class TokenExchangeAccessTokenResolver implements UpstreamAccessTokenResolver {
+public final class TokenExchangeAccessTokenResolver implements ResolveUpstreamTokenPort {
 
   static final String REGISTRATION_ID = "toolpool-token-exchange";
   private static final String AUDIENCE_PARAMETER = "audience";
@@ -62,7 +62,7 @@ public final class TokenExchangeAccessTokenResolver implements UpstreamAccessTok
   }
 
   @Override
-  public AccessToken upstreamTokenFor(@Nullable AccessToken callerToken) {
+  public AccessToken resolveUpstreamToken(@Nullable AccessToken callerToken) {
     if (callerToken == null) {
       throw new UpstreamAccessTokenUnavailableException(
           "Toolpool needs the caller's access token to exchange it for an upstream token");

@@ -2,6 +2,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.github.flexksx.toolpool.adapter.mcp.metatool.McpMetatool;
 import io.github.flexksx.toolpool.adapter.mcp.translation.MetatoolMcpTranslation;
+import io.github.flexksx.toolpool.adapter.openapi.OpenApiToolCatalogSource;
+import io.github.flexksx.toolpool.application.service.CallToolService;
+import io.github.flexksx.toolpool.application.service.DescribeToolService;
+import io.github.flexksx.toolpool.application.service.SearchToolsService;
 import io.github.flexksx.toolpool.domain.tool.ToolCallResult;
 import io.github.flexksx.toolpool.testing.ToolpoolFixtures;
 import io.modelcontextprotocol.server.McpServerFeatures.SyncToolSpecification;
@@ -18,10 +22,14 @@ public class MetatoolMcpTranslationTest {
 
   private final ToolpoolFixtures.RecordingCallExecutor callExecutor =
       new ToolpoolFixtures.RecordingCallExecutor(BACKEND_ANSWER);
+  private final OpenApiToolCatalogSource source =
+      ToolpoolFixtures.catalogSourceFor(ToolpoolFixtures.SAMPLE_SPEC);
   private final MetatoolMcpTranslation translation =
       new MetatoolMcpTranslation(
           McpMetatool.specificationsOf(
-              ToolpoolFixtures.toolpoolFor(ToolpoolFixtures.SAMPLE_SPEC, callExecutor)));
+              new SearchToolsService(source),
+              new DescribeToolService(source),
+              new CallToolService(source, callExecutor)));
 
   @Test
   void toolSpecifications_exposesOnlyTheThreeMetaTools() throws Exception {

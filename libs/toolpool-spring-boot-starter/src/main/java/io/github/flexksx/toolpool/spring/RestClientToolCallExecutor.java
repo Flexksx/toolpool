@@ -1,6 +1,6 @@
 package io.github.flexksx.toolpool.spring;
 
-import io.github.flexksx.toolpool.application.ToolCallExecutor;
+import io.github.flexksx.toolpool.application.port.out.SendToolCallPort;
 import io.github.flexksx.toolpool.domain.auth.AccessToken;
 import io.github.flexksx.toolpool.domain.tool.ToolCallRequest;
 import io.github.flexksx.toolpool.domain.tool.ToolCallResult;
@@ -16,7 +16,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
-public class RestClientToolCallExecutor implements ToolCallExecutor {
+public class RestClientToolCallExecutor implements SendToolCallPort {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RestClientToolCallExecutor.class);
   private static final String EMPTY_RESPONSE_BODY = "{}";
@@ -30,7 +30,7 @@ public class RestClientToolCallExecutor implements ToolCallExecutor {
   }
 
   @Override
-  public ToolCallResult execute(ToolCallRequest call) {
+  public ToolCallResult sendToolCall(ToolCallRequest call) {
     long startedAtNanos = System.nanoTime();
     LOGGER
         .atDebug()

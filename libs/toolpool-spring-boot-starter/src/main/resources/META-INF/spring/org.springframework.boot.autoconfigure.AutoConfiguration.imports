@@ -1,4 +1,8 @@
 io.github.flexksx.toolpool.spring.ToolpoolAutoConfiguration
-io.github.flexksx.toolpool.spring.ToolpoolMcpTransportAutoConfiguration
-io.github.flexksx.toolpool.spring.ToolpoolTokenExchangeAutoConfiguration
-io.github.flexksx.toolpool.spring.ToolpoolSecurityAutoConfiguration
+io.github.flexksx.toolpool.spring.auth.ToolpoolAuthAutoConfiguration
+io.github.flexksx.toolpool.spring.auth.ToolpoolSecurityAutoConfiguration
+io.github.flexksx.toolpool.spring.auth.ToolpoolTokenExchangeAutoConfiguration
+io.github.flexksx.toolpool.spring.embedded.ToolpoolEmbeddedAutoConfiguration
+io.github.flexksx.toolpool.spring.gateway.ToolpoolGatewayAutoConfiguration
+io.github.flexksx.toolpool.spring.mcp.ToolpoolMcpTransportAutoConfiguration
+io.github.flexksx.toolpool.spring.server.ToolpoolServerAutoConfiguration

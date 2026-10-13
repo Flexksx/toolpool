@@ -31,5 +31,17 @@
             <property name="query" value="//CLASS_DEF[IDENT[ends-with(@text, 'Mapper')]]/OBJBLOCK/METHOD_DEF[MODIFIERS/LITERAL_PUBLIC or MODIFIERS/LITERAL_STATIC]/IDENT[not(matches(@text, '^to[A-Z]'))]"/>
             <message key="matchxpath.match" value="A public or static method of a Mapper class must be named toX."/>
         </module>
+
+        <module name="MatchXpath">
+            <property name="id" value="UseCaseInterfaceMethodName"/>
+            <property name="query" value="//INTERFACE_DEF/IDENT[ends-with(@text, 'UseCase')][let $n := concat(lower-case(substring(@text, 1, 1)), substring(@text, 2, string-length(@text) - 8)) return not(../OBJBLOCK/METHOD_DEF[not(MODIFIERS/LITERAL_STATIC) and not(MODIFIERS/LITERAL_PRIVATE) and not(MODIFIERS/LITERAL_DEFAULT)]/IDENT[@text = $n])]"/>
+            <message key="matchxpath.match" value="A UseCase interface must declare an abstract method named after the use case: CallToolUseCase declares callTool."/>
+        </module>
+
+        <module name="MatchXpath">
+            <property name="id" value="UseCaseClassMethodName"/>
+            <property name="query" value="//CLASS_DEF/IDENT[ends-with(@text, 'UseCase')][let $n := concat(lower-case(substring(@text, 1, 1)), substring(@text, 2, string-length(@text) - 8)) return not(../OBJBLOCK/METHOD_DEF[MODIFIERS/LITERAL_PUBLIC and not(MODIFIERS/LITERAL_STATIC)]/IDENT[@text = $n])]"/>
+            <message key="matchxpath.match" value="A UseCase class must declare a public instance method named after the use case: CallToolUseCase declares callTool."/>
+        </module>
     </module>
 </module>

@@ -1,8 +1,8 @@
 package io.github.flexksx.toolpool.adapter.mcp.metatool;
 
 import io.github.flexksx.toolpool.adapter.mcp.McpToolCallMapper;
-import io.github.flexksx.toolpool.application.ToolCatalogUnavailableException;
-import io.github.flexksx.toolpool.application.Toolpool;
+import io.github.flexksx.toolpool.application.port.in.CallToolUseCase;
+import io.github.flexksx.toolpool.application.port.out.ToolCatalogUnavailableException;
 import io.github.flexksx.toolpool.domain.auth.AccessToken;
 import io.github.flexksx.toolpool.domain.schema.JsonSchema;
 import io.github.flexksx.toolpool.domain.tool.UnknownToolException;
@@ -29,8 +29,10 @@ final class CallMcpMetatool extends McpMetatool {
                   .withDescription("JSON object holding one entry per tool parameter")),
           List.of(TOOL_NAME_ARGUMENT, ARGUMENTS_ARGUMENT));
 
-  CallMcpMetatool(Toolpool toolpool) {
-    super(toolpool);
+  private final CallToolUseCase callToolUseCase;
+
+  CallMcpMetatool(CallToolUseCase callToolUseCase) {
+    this.callToolUseCase = callToolUseCase;
   }
 
   @Override
@@ -52,7 +54,8 @@ final class CallMcpMetatool extends McpMetatool {
   CallToolResult execute(Map<String, Object> arguments, @Nullable AccessToken callerToken)
       throws ToolCatalogUnavailableException, UnknownToolException {
     return McpToolCallMapper.toCallToolResult(
-        toolpool().call(requiredToolName(arguments), callArgumentsOf(arguments), callerToken));
+        callToolUseCase.callTool(
+            requiredToolName(arguments), callArgumentsOf(arguments), callerToken));
   }
 
   private static Map<String, Object> callArgumentsOf(Map<String, Object> arguments) {

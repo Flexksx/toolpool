@@ -3,8 +3,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.github.flexksx.toolpool.adapter.mcp.DuplicatePublishedNameException;
 import io.github.flexksx.toolpool.adapter.mcp.translation.DirectMcpTranslation;
-import io.github.flexksx.toolpool.application.ToolCatalogSource;
-import io.github.flexksx.toolpool.application.Toolpool;
+import io.github.flexksx.toolpool.adapter.openapi.OpenApiToolCatalogSource;
+import io.github.flexksx.toolpool.application.service.CallToolService;
+import io.github.flexksx.toolpool.application.service.ListToolsService;
 import io.github.flexksx.toolpool.domain.http.HttpMethod;
 import io.github.flexksx.toolpool.domain.http.HttpTarget;
 import io.github.flexksx.toolpool.domain.schema.JsonSchema;
@@ -101,9 +102,9 @@ public class DirectMcpTranslationTest {
     ToolCatalog catalog =
         ToolCatalog.of(
             List.of(toolNamed("get user", null, null), toolNamed("get_user", null, null)));
-    ToolCatalogSource source = () -> catalog;
     DirectMcpTranslation directMcpTranslation =
-        new DirectMcpTranslation(new Toolpool(source, callExecutor));
+        new DirectMcpTranslation(
+            new ListToolsService(catalog::tools), new CallToolService(catalog::find, callExecutor));
 
     assertThatThrownBy(directMcpTranslation::toolSpecifications)
         .isInstanceOf(DuplicatePublishedNameException.class)
@@ -112,14 +113,15 @@ public class DirectMcpTranslationTest {
   }
 
   private DirectMcpTranslation directToolsFor(String specLocation) {
+    OpenApiToolCatalogSource source = ToolpoolFixtures.catalogSourceFor(specLocation);
     return new DirectMcpTranslation(
-        new Toolpool(ToolpoolFixtures.catalogSourceFor(specLocation), callExecutor));
+        new ListToolsService(source), new CallToolService(source, callExecutor));
   }
 
   private DirectMcpTranslation directToolsOver(Tool tool) {
     ToolCatalog catalog = ToolCatalog.of(List.of(tool));
-    ToolCatalogSource source = () -> catalog;
-    return new DirectMcpTranslation(new Toolpool(source, callExecutor));
+    return new DirectMcpTranslation(
+        new ListToolsService(catalog::tools), new CallToolService(catalog::find, callExecutor));
   }
 
   private static McpSchema.CallToolResult callFirstTool(

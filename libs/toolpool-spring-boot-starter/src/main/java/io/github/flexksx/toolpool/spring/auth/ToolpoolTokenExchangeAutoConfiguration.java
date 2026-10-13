@@ -1,6 +1,7 @@
-package io.github.flexksx.toolpool.spring;
+package io.github.flexksx.toolpool.spring.auth;
 
-import io.github.flexksx.toolpool.application.UpstreamAccessTokenResolver;
+import io.github.flexksx.toolpool.application.port.out.ResolveUpstreamTokenPort;
+import io.github.flexksx.toolpool.spring.ToolpoolAutoConfiguration;
 import java.time.Clock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +25,7 @@ public class ToolpoolTokenExchangeAutoConfiguration {
 
   @Bean
   @ConditionalOnMissingBean
-  UpstreamAccessTokenResolver upstreamAccessTokenResolver(ToolpoolAuthProperties auth) {
+  ResolveUpstreamTokenPort upstreamAccessTokenResolver(ToolpoolAuthProperties auth) {
     ToolpoolAuthProperties.TokenExchange settings = auth.tokenExchange();
     ClientRegistration registration =
         TokenExchangeAccessTokenResolver.toClientRegistration(settings);

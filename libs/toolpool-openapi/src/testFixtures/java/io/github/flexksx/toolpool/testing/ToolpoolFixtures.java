@@ -1,9 +1,7 @@
 package io.github.flexksx.toolpool.testing;
 
 import io.github.flexksx.toolpool.adapter.openapi.OpenApiToolCatalogSource;
-import io.github.flexksx.toolpool.application.ToolCallExecutor;
-import io.github.flexksx.toolpool.application.ToolCatalogSource;
-import io.github.flexksx.toolpool.application.Toolpool;
+import io.github.flexksx.toolpool.application.port.out.SendToolCallPort;
 import io.github.flexksx.toolpool.domain.tool.ToolCallRequest;
 import io.github.flexksx.toolpool.domain.tool.ToolCallResult;
 import java.util.ArrayList;
@@ -15,15 +13,11 @@ public final class ToolpoolFixtures {
 
   private ToolpoolFixtures() {}
 
-  public static ToolCatalogSource catalogSourceFor(String specLocation) {
+  public static OpenApiToolCatalogSource catalogSourceFor(String specLocation) {
     return new OpenApiToolCatalogSource(specLocation);
   }
 
-  public static Toolpool toolpoolFor(String specLocation, ToolCallExecutor callExecutor) {
-    return new Toolpool(catalogSourceFor(specLocation), callExecutor);
-  }
-
-  public static final class RecordingCallExecutor implements ToolCallExecutor {
+  public static final class RecordingCallExecutor implements SendToolCallPort {
 
     private final List<ToolCallRequest> calls = new ArrayList<>();
     private final ToolCallResult answer;
@@ -33,7 +27,7 @@ public final class ToolpoolFixtures {
     }
 
     @Override
-    public ToolCallResult execute(ToolCallRequest call) {
+    public ToolCallResult sendToolCall(ToolCallRequest call) {
       calls.add(call);
       return answer;
     }

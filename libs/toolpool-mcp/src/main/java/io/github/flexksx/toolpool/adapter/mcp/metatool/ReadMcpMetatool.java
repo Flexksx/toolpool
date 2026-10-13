@@ -1,7 +1,7 @@
 package io.github.flexksx.toolpool.adapter.mcp.metatool;
 
-import io.github.flexksx.toolpool.application.ToolCatalogUnavailableException;
-import io.github.flexksx.toolpool.application.Toolpool;
+import io.github.flexksx.toolpool.application.port.in.DescribeToolUseCase;
+import io.github.flexksx.toolpool.application.port.out.ToolCatalogUnavailableException;
 import io.github.flexksx.toolpool.domain.auth.AccessToken;
 import io.github.flexksx.toolpool.domain.schema.JsonSchema;
 import io.github.flexksx.toolpool.domain.tool.UnknownToolException;
@@ -21,8 +21,10 @@ final class ReadMcpMetatool extends McpMetatool {
               JsonSchema.stringType().withDescription("The name of the tool to read")),
           List.of(TOOL_NAME_ARGUMENT));
 
-  ReadMcpMetatool(Toolpool toolpool) {
-    super(toolpool);
+  private final DescribeToolUseCase describeToolUseCase;
+
+  ReadMcpMetatool(DescribeToolUseCase describeToolUseCase) {
+    this.describeToolUseCase = describeToolUseCase;
   }
 
   @Override
@@ -43,6 +45,7 @@ final class ReadMcpMetatool extends McpMetatool {
   @Override
   CallToolResult execute(Map<String, Object> arguments, @Nullable AccessToken callerToken)
       throws ToolCatalogUnavailableException, UnknownToolException {
-    return jsonResult(ToolDefinition.of(toolpool().read(requiredToolName(arguments))));
+    return jsonResult(
+        ToolDefinition.of(describeToolUseCase.describeTool(requiredToolName(arguments))));
   }
 }

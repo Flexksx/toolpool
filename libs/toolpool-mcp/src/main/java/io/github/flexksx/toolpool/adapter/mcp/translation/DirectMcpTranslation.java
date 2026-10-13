@@ -4,8 +4,9 @@ import io.github.flexksx.toolpool.adapter.mcp.DuplicatePublishedNameException;
 import io.github.flexksx.toolpool.adapter.mcp.McpAccessTokenMapper;
 import io.github.flexksx.toolpool.adapter.mcp.McpToolCallMapper;
 import io.github.flexksx.toolpool.adapter.mcp.McpToolNames;
-import io.github.flexksx.toolpool.application.ToolCatalogUnavailableException;
-import io.github.flexksx.toolpool.application.Toolpool;
+import io.github.flexksx.toolpool.application.port.in.CallToolUseCase;
+import io.github.flexksx.toolpool.application.port.in.ListToolsUseCase;
+import io.github.flexksx.toolpool.application.port.out.ToolCatalogUnavailableException;
 import io.github.flexksx.toolpool.domain.auth.AccessToken;
 import io.github.flexksx.toolpool.domain.tool.Tool;
 import io.github.flexksx.toolpool.domain.tool.ToolName;
@@ -20,10 +21,12 @@ import org.jspecify.annotations.Nullable;
 
 public final class DirectMcpTranslation implements McpTranslation {
 
-  private final Toolpool toolpool;
+  private final ListToolsUseCase listToolsUseCase;
+  private final CallToolUseCase callToolUseCase;
 
-  public DirectMcpTranslation(Toolpool toolpool) {
-    this.toolpool = toolpool;
+  public DirectMcpTranslation(ListToolsUseCase listToolsUseCase, CallToolUseCase callToolUseCase) {
+    this.listToolsUseCase = listToolsUseCase;
+    this.callToolUseCase = callToolUseCase;
   }
 
   @Override
@@ -31,7 +34,7 @@ public final class DirectMcpTranslation implements McpTranslation {
     Map<String, Tool> toolsByPublishedName = new LinkedHashMap<>();
     List<SyncToolSpecification> specifications = new ArrayList<>();
 
-    for (Tool tool : toolpool.tools()) {
+    for (Tool tool : listToolsUseCase.listTools()) {
       String publishedName = McpToolNames.publishedNameOf(tool.name());
       Tool clashing = toolsByPublishedName.putIfAbsent(publishedName, tool);
       if (clashing != null) {
@@ -61,7 +64,8 @@ public final class DirectMcpTranslation implements McpTranslation {
   private McpSchema.CallToolResult call(
       ToolName name, @Nullable Map<String, Object> arguments, @Nullable AccessToken callerToken) {
     try {
-      return McpToolCallMapper.toCallToolResult(toolpool.call(name, arguments, callerToken));
+      return McpToolCallMapper.toCallToolResult(
+          callToolUseCase.callTool(name, arguments, callerToken));
     } catch (ToolCatalogUnavailableException | UnknownToolException | RuntimeException failure) {
       return McpToolCallMapper.toFailedCallToolResult(failure);
     }

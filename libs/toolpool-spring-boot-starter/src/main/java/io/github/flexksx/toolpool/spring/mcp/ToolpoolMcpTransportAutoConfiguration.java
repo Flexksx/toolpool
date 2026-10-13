@@ -1,4 +1,4 @@
-package io.github.flexksx.toolpool.spring;
+package io.github.flexksx.toolpool.spring.mcp;
 
 import io.github.flexksx.toolpool.adapter.mcp.McpAccessTokenMapper;
 import io.modelcontextprotocol.json.jackson3.JacksonMcpJsonMapper;
@@ -18,6 +18,10 @@ import tools.jackson.databind.json.JsonMapper;
 @ConditionalOnProperty(
     name = McpServerDefaultProperties.PROTOCOL_PROPERTY,
     havingValue = McpServerDefaultProperties.STREAMABLE_PROTOCOL)
+@ConditionalOnProperty(
+    name = McpServerDefaultProperties.ENABLED_PROPERTY,
+    havingValue = "true",
+    matchIfMissing = true)
 @EnableConfigurationProperties(McpServerStreamableHttpProperties.class)
 public class ToolpoolMcpTransportAutoConfiguration {
 

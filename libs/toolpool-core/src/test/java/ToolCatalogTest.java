@@ -10,6 +10,7 @@ import io.github.flexksx.toolpool.domain.tool.ToolDocumentation;
 import io.github.flexksx.toolpool.domain.tool.ToolName;
 import io.github.flexksx.toolpool.domain.tool.UnknownToolException;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 public class ToolCatalogTest {
@@ -51,6 +52,17 @@ public class ToolCatalogTest {
 
     assertThat(catalog.search("add")).containsExactly(createUser);
     assertThat(catalog.search("")).containsExactly(listUsers, createUser);
+  }
+
+  @Test
+  void restrictedToSomeTargets_keepsOnlyTheToolsAtThoseTargets() {
+    Tool getUser = toolNamed(new ToolName("getUser"), "/users/{id}", "Get a user");
+    ToolCatalog catalog = ToolCatalog.of(List.of(listUsers, getUser));
+
+    ToolCatalog restricted =
+        catalog.restrictedTo(Set.of(new HttpTarget(HttpMethod.GET, "/users/{id}")));
+
+    assertThat(restricted.tools()).containsExactly(getUser);
   }
 
   private static Tool toolNamed(ToolName name, String path, String summary) {

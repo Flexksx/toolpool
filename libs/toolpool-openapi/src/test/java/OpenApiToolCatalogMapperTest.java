@@ -198,6 +198,6 @@ public class OpenApiToolCatalogMapperTest {
   }
 
   private static ToolCatalog toToolCatalog(String specLocation) throws Exception {
-    return new OpenApiToolCatalogSource(specLocation).catalog();
+    return new OpenApiToolCatalogSource(specLocation).loadToolCatalog();
   }
 }

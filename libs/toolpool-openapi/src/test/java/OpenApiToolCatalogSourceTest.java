@@ -2,7 +2,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.github.flexksx.toolpool.adapter.openapi.OpenApiToolCatalogSource;
-import io.github.flexksx.toolpool.application.ToolCatalogUnavailableException;
+import io.github.flexksx.toolpool.application.port.out.ToolCatalogUnavailableException;
 import io.github.flexksx.toolpool.testing.ToolpoolFixtures;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -20,7 +20,7 @@ public class OpenApiToolCatalogSourceTest {
         "openapi-specs/sample-rest-api-client.openapi.yaml"
       })
   void catalogOfAParsableSpec_holdsOneToolPerOperation(String specLocation) throws Exception {
-    assertThat(new OpenApiToolCatalogSource(specLocation).catalog().tools())
+    assertThat(new OpenApiToolCatalogSource(specLocation).loadToolCatalog().tools())
         .extracting(tool -> tool.name().value())
         .containsExactlyInAnyOrder("getUser", "createUser", "updateUser");
   }
@@ -29,13 +29,13 @@ public class OpenApiToolCatalogSourceTest {
   void catalogTwice_readsTheSpecOnceAndServesOneCatalog() throws Exception {
     OpenApiToolCatalogSource source = new OpenApiToolCatalogSource(ToolpoolFixtures.SAMPLE_SPEC);
 
-    assertThat(source.catalog()).isSameAs(source.catalog());
+    assertThat(source.loadToolCatalog()).isSameAs(source.loadToolCatalog());
   }
 
   @ParameterizedTest
   @ValueSource(strings = {MISSING_SPEC, MALFORMED_SPEC})
   void catalogOfAnUnreadableSpec_throwsNamingTheSpecLocation(String specLocation) {
-    assertThatThrownBy(() -> new OpenApiToolCatalogSource(specLocation).catalog())
+    assertThatThrownBy(() -> new OpenApiToolCatalogSource(specLocation).loadToolCatalog())
         .isInstanceOf(ToolCatalogUnavailableException.class)
         .hasMessageContaining(specLocation);
   }

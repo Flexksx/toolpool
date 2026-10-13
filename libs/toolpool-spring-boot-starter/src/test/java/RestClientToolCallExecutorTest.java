@@ -51,7 +51,7 @@ public class RestClientToolCallExecutorTest {
         .andRespond(withSuccess(USER_JSON, MediaType.APPLICATION_JSON));
 
     ToolCallResult result =
-        executor.execute(
+        executor.sendToolCall(
             new ToolCallRequest(
                 GET_USER,
                 GET_USER_TARGET,
@@ -72,7 +72,7 @@ public class RestClientToolCallExecutorTest {
         .andExpect(header(HttpHeaders.AUTHORIZATION, "Bearer t1"))
         .andRespond(withSuccess(USER_JSON, MediaType.APPLICATION_JSON));
 
-    executor.execute(getUserCall("u1").withAccessToken(new AccessToken("t1")));
+    executor.sendToolCall(getUserCall("u1").withAccessToken(new AccessToken("t1")));
 
     apiServer.verify();
   }
@@ -84,7 +84,7 @@ public class RestClientToolCallExecutorTest {
         .andExpect(headerDoesNotExist(HttpHeaders.AUTHORIZATION))
         .andRespond(withSuccess(USER_JSON, MediaType.APPLICATION_JSON));
 
-    executor.execute(getUserCall("u1"));
+    executor.sendToolCall(getUserCall("u1"));
 
     apiServer.verify();
   }
@@ -96,7 +96,7 @@ public class RestClientToolCallExecutorTest {
         .andExpect(content().string(""))
         .andRespond(withSuccess(USER_JSON, MediaType.APPLICATION_JSON));
 
-    executor.execute(getUserCall("u1"));
+    executor.sendToolCall(getUserCall("u1"));
 
     apiServer.verify();
   }
@@ -111,7 +111,7 @@ public class RestClientToolCallExecutorTest {
         .andRespond(withSuccess(USER_JSON, MediaType.APPLICATION_JSON));
 
     ToolCallResult result =
-        executor.execute(
+        executor.sendToolCall(
             new ToolCallRequest(
                 new ToolName("updateUser"),
                 new HttpTarget(HttpMethod.PUT, "/users/{id}"),
@@ -132,7 +132,7 @@ public class RestClientToolCallExecutorTest {
         .andRespond(
             withStatus(HttpStatus.NOT_FOUND).body("{\"detail\":\"User missing not found\"}"));
 
-    ToolCallResult result = executor.execute(getUserCall("missing"));
+    ToolCallResult result = executor.sendToolCall(getUserCall("missing"));
 
     assertThat(result.failed()).isTrue();
     assertThat(result.content()).contains("User missing not found");
@@ -142,7 +142,7 @@ public class RestClientToolCallExecutorTest {
   void executeACallThatAnswersNoBody_reportsAnEmptyJsonObject() {
     apiServer.expect(requestTo(BASE_URL + "/users/u1")).andRespond(withSuccess());
 
-    ToolCallResult result = executor.execute(getUserCall("u1"));
+    ToolCallResult result = executor.sendToolCall(getUserCall("u1"));
 
     assertThat(result.content()).isEqualTo("{}");
   }
@@ -152,7 +152,7 @@ public class RestClientToolCallExecutorTest {
     RestClientToolCallExecutor unreachable =
         new RestClientToolCallExecutor(RestClient.builder().baseUrl("http://127.0.0.1:1").build());
 
-    ToolCallResult result = unreachable.execute(getUserCall("u1"));
+    ToolCallResult result = unreachable.sendToolCall(getUserCall("u1"));
 
     assertThat(result.failed()).isTrue();
     assertThat(result.content()).isNotBlank();

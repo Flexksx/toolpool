@@ -1,4 +1,4 @@
-package io.github.flexksx.toolpool.spring;
+package io.github.flexksx.toolpool.spring.auth;
 
 public enum ToolpoolAuthMode {
   NONE,

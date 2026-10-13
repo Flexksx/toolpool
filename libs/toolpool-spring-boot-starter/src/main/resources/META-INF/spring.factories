@@ -1,2 +1,3 @@
 org.springframework.boot.EnvironmentPostProcessor=\
-io.github.flexksx.toolpool.spring.McpServerDefaultProperties
+io.github.flexksx.toolpool.spring.mcp.McpServerDefaultProperties,\
+io.github.flexksx.toolpool.spring.server.ToolpoolServerEnvironment

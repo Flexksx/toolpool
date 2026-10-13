@@ -8,9 +8,9 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
-import io.github.flexksx.toolpool.application.UpstreamAccessTokenUnavailableException;
+import io.github.flexksx.toolpool.application.port.out.UpstreamAccessTokenUnavailableException;
 import io.github.flexksx.toolpool.domain.auth.AccessToken;
-import io.github.flexksx.toolpool.spring.TokenExchangeAccessTokenResolver;
+import io.github.flexksx.toolpool.spring.auth.TokenExchangeAccessTokenResolver;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Duration;
@@ -83,7 +83,7 @@ public class TokenExchangeAccessTokenResolverTest {
                         "audience", AUDIENCE)))
         .andRespond(tokenResponse("upstream-1"));
 
-    AccessToken upstream = resolver.upstreamTokenFor(CALLER_TOKEN);
+    AccessToken upstream = resolver.resolveUpstreamToken(CALLER_TOKEN);
 
     idp.verify();
     assertThat(upstream).isEqualTo(new AccessToken("upstream-1"));
@@ -93,8 +93,8 @@ public class TokenExchangeAccessTokenResolverTest {
   void upstreamTokenForTheSameCallerTokenTwice_exchangesItOnce() {
     idp.expect(once(), requestTo(TOKEN_URI)).andRespond(tokenResponse("upstream-1"));
 
-    resolver.upstreamTokenFor(CALLER_TOKEN);
-    AccessToken second = resolver.upstreamTokenFor(CALLER_TOKEN);
+    resolver.resolveUpstreamToken(CALLER_TOKEN);
+    AccessToken second = resolver.resolveUpstreamToken(CALLER_TOKEN);
 
     idp.verify();
     assertThat(second).isEqualTo(new AccessToken("upstream-1"));
@@ -105,9 +105,9 @@ public class TokenExchangeAccessTokenResolverTest {
     idp.expect(requestTo(TOKEN_URI)).andRespond(tokenResponse("upstream-1"));
     idp.expect(requestTo(TOKEN_URI)).andRespond(tokenResponse("upstream-2"));
 
-    resolver.upstreamTokenFor(CALLER_TOKEN);
+    resolver.resolveUpstreamToken(CALLER_TOKEN);
     clock.advance(Duration.ofSeconds(LIFETIME_SECONDS));
-    AccessToken renewed = resolver.upstreamTokenFor(CALLER_TOKEN);
+    AccessToken renewed = resolver.resolveUpstreamToken(CALLER_TOKEN);
 
     idp.verify();
     assertThat(renewed).isEqualTo(new AccessToken("upstream-2"));
@@ -122,8 +122,8 @@ public class TokenExchangeAccessTokenResolverTest {
         .andExpect(content().formDataContains(Map.of("subject_token", "caller-b")))
         .andRespond(tokenResponse("upstream-b"));
 
-    AccessToken first = resolver.upstreamTokenFor(new AccessToken("caller-a"));
-    AccessToken second = resolver.upstreamTokenFor(new AccessToken("caller-b"));
+    AccessToken first = resolver.resolveUpstreamToken(new AccessToken("caller-a"));
+    AccessToken second = resolver.resolveUpstreamToken(new AccessToken("caller-b"));
 
     idp.verify();
     assertThat(first).isEqualTo(new AccessToken("upstream-a"));
@@ -138,7 +138,7 @@ public class TokenExchangeAccessTokenResolverTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body("{\"error\":\"invalid_grant\"}"));
 
-    assertThatThrownBy(() -> resolver.upstreamTokenFor(CALLER_TOKEN))
+    assertThatThrownBy(() -> resolver.resolveUpstreamToken(CALLER_TOKEN))
         .isInstanceOf(UpstreamAccessTokenUnavailableException.class)
         .hasMessageContaining("invalid_grant")
         .hasMessageNotContaining(CALLER_TOKEN.value());
@@ -146,7 +146,7 @@ public class TokenExchangeAccessTokenResolverTest {
 
   @Test
   void upstreamTokenForNoCallerToken_throwsWithoutCallingTheAuthorizationServer() {
-    assertThatThrownBy(() -> resolver.upstreamTokenFor(null))
+    assertThatThrownBy(() -> resolver.resolveUpstreamToken(null))
         .isInstanceOf(UpstreamAccessTokenUnavailableException.class)
         .hasMessageContaining("caller's access token");
 

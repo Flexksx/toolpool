@@ -1,7 +1,7 @@
 package io.github.flexksx.toolpool.adapter.mcp.metatool;
 
-import io.github.flexksx.toolpool.application.ToolCatalogUnavailableException;
-import io.github.flexksx.toolpool.application.Toolpool;
+import io.github.flexksx.toolpool.application.port.in.SearchToolsUseCase;
+import io.github.flexksx.toolpool.application.port.out.ToolCatalogUnavailableException;
 import io.github.flexksx.toolpool.domain.auth.AccessToken;
 import io.github.flexksx.toolpool.domain.schema.JsonSchema;
 import io.modelcontextprotocol.spec.McpSchema.CallToolResult;
@@ -25,8 +25,10 @@ final class SearchMcpMetatool extends McpMetatool {
                   .withDescription("Text to match. Leave empty to list every tool.")),
           List.of());
 
-  SearchMcpMetatool(Toolpool toolpool) {
-    super(toolpool);
+  private final SearchToolsUseCase searchToolsUseCase;
+
+  SearchMcpMetatool(SearchToolsUseCase searchToolsUseCase) {
+    this.searchToolsUseCase = searchToolsUseCase;
   }
 
   @Override
@@ -47,7 +49,8 @@ final class SearchMcpMetatool extends McpMetatool {
   @Override
   CallToolResult execute(Map<String, Object> arguments, @Nullable AccessToken callerToken)
       throws ToolCatalogUnavailableException {
-    return jsonResult(toolpool().search(queryOf(arguments)).stream().map(ToolSummary::of).toList());
+    return jsonResult(
+        searchToolsUseCase.searchTools(queryOf(arguments)).stream().map(ToolSummary::of).toList());
   }
 
   private static String queryOf(Map<String, Object> arguments) {

@@ -1,4 +1,4 @@
-package io.github.flexksx.toolpool.spring;
+package io.github.flexksx.toolpool.spring.auth;
 
 import org.springframework.boot.autoconfigure.condition.ConditionOutcome;
 import org.springframework.boot.autoconfigure.condition.SpringBootCondition;

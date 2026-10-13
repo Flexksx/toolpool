@@ -1,4 +1,4 @@
-package io.github.flexksx.toolpool.spring;
+package io.github.flexksx.toolpool.spring.auth;
 
 import java.util.List;
 import org.jspecify.annotations.Nullable;

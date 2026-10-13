@@ -2,8 +2,10 @@ package io.github.flexksx.toolpool.adapter.mcp.metatool;
 
 import io.github.flexksx.toolpool.adapter.mcp.McpAccessTokenMapper;
 import io.github.flexksx.toolpool.adapter.mcp.McpToolCallMapper;
-import io.github.flexksx.toolpool.application.ToolCatalogUnavailableException;
-import io.github.flexksx.toolpool.application.Toolpool;
+import io.github.flexksx.toolpool.application.port.in.CallToolUseCase;
+import io.github.flexksx.toolpool.application.port.in.DescribeToolUseCase;
+import io.github.flexksx.toolpool.application.port.in.SearchToolsUseCase;
+import io.github.flexksx.toolpool.application.port.out.ToolCatalogUnavailableException;
 import io.github.flexksx.toolpool.domain.auth.AccessToken;
 import io.github.flexksx.toolpool.domain.schema.JsonSchema;
 import io.github.flexksx.toolpool.domain.tool.ToolName;
@@ -24,17 +26,14 @@ public abstract sealed class McpMetatool
 
   static final String TOOL_NAME_ARGUMENT = "toolName";
 
-  private final Toolpool toolpool;
-
-  McpMetatool(Toolpool toolpool) {
-    this.toolpool = toolpool;
-  }
-
-  public static List<SyncToolSpecification> specificationsOf(Toolpool toolpool) {
+  public static List<SyncToolSpecification> specificationsOf(
+      SearchToolsUseCase searchToolsUseCase,
+      DescribeToolUseCase describeToolUseCase,
+      CallToolUseCase callToolUseCase) {
     return Stream.of(
-            new SearchMcpMetatool(toolpool),
-            new ReadMcpMetatool(toolpool),
-            new CallMcpMetatool(toolpool))
+            new SearchMcpMetatool(searchToolsUseCase),
+            new ReadMcpMetatool(describeToolUseCase),
+            new CallMcpMetatool(callToolUseCase))
         .map(McpMetatool::specification)
         .toList();
   }
@@ -55,10 +54,6 @@ public abstract sealed class McpMetatool
 
   abstract CallToolResult execute(Map<String, Object> arguments, @Nullable AccessToken callerToken)
       throws ToolCatalogUnavailableException, UnknownToolException;
-
-  final Toolpool toolpool() {
-    return toolpool;
-  }
 
   final CallToolResult jsonResult(Object payload) {
     try {

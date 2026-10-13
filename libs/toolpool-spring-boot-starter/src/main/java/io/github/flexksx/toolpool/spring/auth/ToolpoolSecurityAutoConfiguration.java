@@ -1,5 +1,6 @@
-package io.github.flexksx.toolpool.spring;
+package io.github.flexksx.toolpool.spring.auth;
 
+import io.github.flexksx.toolpool.spring.mcp.McpServerDefaultProperties;
 import jakarta.servlet.http.HttpServletRequest;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -39,6 +41,10 @@ import org.springframework.web.util.UriComponentsBuilder;
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 @ConditionalOnClass(BearerTokenAuthenticationEntryPoint.class)
 @Conditional(ToolpoolAuthConditions.CallerTokenRequired.class)
+@ConditionalOnProperty(
+    name = McpServerDefaultProperties.ENABLED_PROPERTY,
+    havingValue = "true",
+    matchIfMissing = true)
 @EnableWebSecurity
 @EnableConfigurationProperties({
   ToolpoolAuthProperties.class,

@@ -1,4 +1,4 @@
-package io.github.flexksx.toolpool.application;
+package io.github.flexksx.toolpool.application.port.out;
 
 public class ToolCatalogUnavailableException extends Exception {
 

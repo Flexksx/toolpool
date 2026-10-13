@@ -1,9 +1,11 @@
 package io.github.flexksx.toolpool.domain.tool;
 
+import io.github.flexksx.toolpool.domain.http.HttpTarget;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
 public final class ToolCatalog {
@@ -39,5 +41,10 @@ public final class ToolCatalog {
 
   public List<Tool> tools() {
     return List.copyOf(toolsByName.values());
+  }
+
+  public ToolCatalog restrictedTo(Set<HttpTarget> targets) {
+    return of(
+        toolsByName.values().stream().filter(tool -> targets.contains(tool.target())).toList());
   }
 }

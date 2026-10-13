@@ -31,6 +31,7 @@ public class ToolpoolArchitectureTest {
   static final String SCHEMA_DOMAIN = "io.github.flexksx.toolpool.domain.schema..";
   static final String AUTH_DOMAIN = "io.github.flexksx.toolpool.domain.auth..";
   static final String APPLICATION = "io.github.flexksx.toolpool.application..";
+  static final String APPLICATION_SERVICE = "io.github.flexksx.toolpool.application.service..";
   static final String OPENAPI_ADAPTER = "io.github.flexksx.toolpool.adapter.openapi..";
   static final String MCP_ADAPTER = "io.github.flexksx.toolpool.adapter.mcp..";
   static final String SPRING_MODULE = "io.github.flexksx.toolpool.spring..";
@@ -114,6 +115,15 @@ public class ToolpoolArchitectureTest {
           .should()
           .dependOnClassesThat()
           .resideInAPackage(MCP_SDK);
+
+  @ArchTest
+  static final ArchRule onlyTheSpringModuleKnowsTheToolService =
+      noClasses()
+          .that()
+          .resideOutsideOfPackages(APPLICATION_SERVICE, SPRING_MODULE)
+          .should()
+          .dependOnClassesThat()
+          .resideInAPackage(APPLICATION_SERVICE);
 
   @ArchTest
   static final ArchRule everyPackageDeclaresThatItIsNullMarked =

@@ -1,11 +1,13 @@
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.github.flexksx.toolpool.application.UpstreamAccessTokenResolver;
+import io.github.flexksx.toolpool.application.port.out.ResolveUpstreamTokenPort;
 import io.github.flexksx.toolpool.domain.auth.AccessToken;
-import io.github.flexksx.toolpool.spring.TokenExchangeAccessTokenResolver;
 import io.github.flexksx.toolpool.spring.ToolpoolAutoConfiguration;
-import io.github.flexksx.toolpool.spring.ToolpoolSecurityAutoConfiguration;
-import io.github.flexksx.toolpool.spring.ToolpoolTokenExchangeAutoConfiguration;
+import io.github.flexksx.toolpool.spring.auth.TokenExchangeAccessTokenResolver;
+import io.github.flexksx.toolpool.spring.auth.ToolpoolAuthAutoConfiguration;
+import io.github.flexksx.toolpool.spring.auth.ToolpoolSecurityAutoConfiguration;
+import io.github.flexksx.toolpool.spring.auth.ToolpoolTokenExchangeAutoConfiguration;
+import io.github.flexksx.toolpool.spring.gateway.ToolpoolGatewayAutoConfiguration;
 import io.github.flexksx.toolpool.testing.ToolpoolFixtures;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -25,6 +27,8 @@ public class ToolpoolAuthAutoConfigurationTest {
           .withConfiguration(
               AutoConfigurations.of(
                   ToolpoolTokenExchangeAutoConfiguration.class,
+                  ToolpoolAuthAutoConfiguration.class,
+                  ToolpoolGatewayAutoConfiguration.class,
                   ToolpoolAutoConfiguration.class,
                   ToolpoolSecurityAutoConfiguration.class))
           .withPropertyValues(
@@ -37,7 +41,9 @@ public class ToolpoolAuthAutoConfigurationTest {
         context -> {
           assertThat(context).hasNotFailed().doesNotHaveBean(SecurityFilterChain.class);
           assertThat(
-                  context.getBean(UpstreamAccessTokenResolver.class).upstreamTokenFor(CALLER_TOKEN))
+                  context
+                      .getBean(ResolveUpstreamTokenPort.class)
+                      .resolveUpstreamToken(CALLER_TOKEN))
               .isNull();
         });
   }
@@ -52,8 +58,8 @@ public class ToolpoolAuthAutoConfigurationTest {
               assertThat(context).hasNotFailed().hasBean("toolpoolSecurityFilterChain");
               assertThat(
                       context
-                          .getBean(UpstreamAccessTokenResolver.class)
-                          .upstreamTokenFor(CALLER_TOKEN))
+                          .getBean(ResolveUpstreamTokenPort.class)
+                          .resolveUpstreamToken(CALLER_TOKEN))
                   .isEqualTo(CALLER_TOKEN);
             });
   }
@@ -71,7 +77,7 @@ public class ToolpoolAuthAutoConfigurationTest {
                 assertThat(context)
                     .hasNotFailed()
                     .hasBean("toolpoolSecurityFilterChain")
-                    .getBean(UpstreamAccessTokenResolver.class)
+                    .getBean(ResolveUpstreamTokenPort.class)
                     .isInstanceOf(TokenExchangeAccessTokenResolver.class));
   }
 
